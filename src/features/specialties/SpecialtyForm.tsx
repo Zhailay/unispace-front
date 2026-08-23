@@ -84,7 +84,7 @@ export default function SpecialtyForm({ open, onClose, gruppaOpList, editRow }: 
       spec_kz: specKz.trim(),
       spec_ru: specRu.trim(),
       spec_en: specEn.trim(),
-      id_gruppa_op: Number(gruppaOpId),
+      id_gruppa_op: gruppaOpId as Id,
     }
 
     try {

@@ -30,7 +30,7 @@ export interface SpecialtyInput {
   spec_kz: string
   spec_ru: string
   spec_en: string
-  id_gruppa_op: number
+  id_gruppa_op: Id
 }
 
 interface ListArgs {
