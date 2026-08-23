@@ -228,7 +228,7 @@ export default function PlanForm({
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'plan.success_update' : 'plan.success_add'),
+            t(isEdit ? 'plan.success_update' : 'plan.success_add'),
           ),
         )
         onClose()

@@ -115,7 +115,7 @@ export default function GruppaForm({
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'success.updated' : 'success.created'),
+            t(isEdit ? 'success.updated' : 'success.created'),
           ),
         )
         onClose()

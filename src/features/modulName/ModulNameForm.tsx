@@ -111,7 +111,7 @@ export default function ModulNameForm({ open, onClose, tipModulList, editRow }: 
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'modul_name.success_update' : 'modul_name.success_add'),
+            t(isEdit ? 'modul_name.success_update' : 'modul_name.success_add'),
           ),
         )
         onClose()

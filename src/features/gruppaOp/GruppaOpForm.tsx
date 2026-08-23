@@ -94,7 +94,7 @@ export default function GruppaOpForm({ open, onClose, editRow }: Props) {
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'success.updated' : 'success.created'),
+            t(isEdit ? 'success.updated' : 'success.created'),
           ),
         )
         onClose()

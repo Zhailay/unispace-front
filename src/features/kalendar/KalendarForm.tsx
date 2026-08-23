@@ -157,7 +157,7 @@ export default function KalendarForm({
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'kalendar.success_update' : 'kalendar.success_add'),
+            t(isEdit ? 'kalendar.success_update' : 'kalendar.success_add'),
           ),
         )
         onClose()

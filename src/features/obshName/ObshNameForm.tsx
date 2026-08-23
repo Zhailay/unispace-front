@@ -104,7 +104,7 @@ export default function ObshNameForm({ open, onClose, editRow }: Props) {
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'obsh_name.success_update' : 'obsh_name.success_add'),
+            t(isEdit ? 'obsh_name.success_update' : 'obsh_name.success_add'),
           ),
         )
         onClose()

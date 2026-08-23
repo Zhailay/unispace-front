@@ -136,7 +136,7 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'disciplina.success_update' : 'disciplina.success_add'),
+            t(isEdit ? 'disciplina.success_update' : 'disciplina.success_add'),
           ),
         )
         onClose()

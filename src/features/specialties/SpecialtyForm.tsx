@@ -105,7 +105,7 @@ export default function SpecialtyForm({ open, onClose, gruppaOpList, editRow }: 
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'specialties.success_update' : 'specialties.success_add'),
+            t(isEdit ? 'specialties.success_update' : 'specialties.success_add'),
           ),
         )
         onClose()

@@ -808,7 +808,7 @@ function GradeTable({ students, activeCols, isVneplan, gradeEdits, onEdit }: Gra
               FIO
             </th>
             {activeCols.map((col) => (
-              <th key={col.key} colSpan={4} className="border-r border-border px-2 py-1 text-center">
+              <th key={col.key} colSpan={3} className="border-r border-border px-2 py-1 text-center">
                 {col.label}
               </th>
             ))}
@@ -819,9 +819,6 @@ function GradeTable({ students, activeCols, isVneplan, gradeEdits, onEdit }: Gra
           <tr className="border-b border-border">
             {activeCols.map((col) => (
               <Fragment key={col.key}>
-                <th className="px-1 py-1 text-center text-xs" style={{ minWidth: 40 }}>
-                  Task
-                </th>
                 <th className="px-1 py-1 text-center text-xs" style={{ minWidth: 50 }}>
                   Grade
                 </th>
@@ -855,7 +852,7 @@ function GradeTable({ students, activeCols, isVneplan, gradeEdits, onEdit }: Gra
                   const psId = row[col.key as VidColKey] as Id | null
                   if (!psId) {
                     return (
-                      <td key={col.key} colSpan={4} className="border-r border-border px-2 py-1 text-center text-muted">
+                      <td key={col.key} colSpan={3} className="border-r border-border px-2 py-1 text-center text-muted">
                         -
                       </td>
                     )
@@ -864,15 +861,13 @@ function GradeTable({ students, activeCols, isVneplan, gradeEdits, onEdit }: Gra
                   const colLocked = isVneplan && !spravkaIds.has(String(psId))
                   if (colLocked) {
                     return (
-                      <td key={col.key} colSpan={4} className="border-r border-border px-2 py-1 text-center text-muted">
+                      <td key={col.key} colSpan={3} className="border-r border-border px-2 py-1 text-center text-muted">
                         -
                       </td>
                     )
                   }
 
-                  const chasy = (students.find((r) => r[col.chasyKey as keyof JurnalStudentRow]) as JurnalStudentRow | undefined)?.[col.chasyKey as keyof JurnalStudentRow] as
-                    | number
-                    | null
+                  const chasy = row[col.chasyKey as keyof JurnalStudentRow] as number | null
                   const currentBall = row[col.ballKey as VidColBallKey] as number | null
                   const currentKomment = row[col.kommentKey as VidColKommentKey] as string | null
                   const currentPropusk = row[col.propuskKey as VidColPropuskKey] as number | null
