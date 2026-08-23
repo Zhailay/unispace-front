@@ -17,6 +17,9 @@ import PlanPage from '@/pages/staff/PlanPage'
 import RegistraciyaPage from '@/pages/staff/RegistraciyaPage'
 import JurnalPage from '@/pages/staff/JurnalPage'
 import VneplanovoePage from '@/pages/staff/VneplanovoePage'
+import TestUploadPage from '@/pages/staff/TestUploadPage'
+import TestPreviewPage from '@/pages/staff/TestPreviewPage'
+import TestManagePage from '@/pages/staff/TestManagePage'
 import StudentDashboardPage from '@/pages/student/StudentDashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import Spinner from '@/shared/ui/Spinner'
@@ -56,6 +59,9 @@ export default function App() {
             <Route path="/staff/registraciya" element={<RegistraciyaPage />} />
             <Route path="/staff/jurnal" element={<JurnalPage />} />
             <Route path="/staff/vneplanovoe" element={<VneplanovoePage />} />
+            <Route path="/staff/test-upload" element={<TestUploadPage />} />
+            <Route path="/staff/test-upload/preview" element={<TestPreviewPage />} />
+            <Route path="/staff/test-upload/manage/:id" element={<TestManagePage />} />
           </Route>
         </Route>
 
