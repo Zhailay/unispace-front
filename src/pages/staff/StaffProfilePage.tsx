@@ -31,13 +31,13 @@ export default function StaffProfilePage() {
     }
 
     try {
-      const result = await changePassword({
+      await changePassword({
         currentPassword,
         newPassword,
         confirmPassword,
       }).unwrap()
 
-      dispatch(toastPushed('success', result.message || t('profile.password_changed')))
+      dispatch(toastPushed('success', t('profile.password_changed')))
       // После смены пароля сессия уничтожена — редирект на логин
       navigate('/login', { replace: true })
     } catch (err) {

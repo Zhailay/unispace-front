@@ -111,16 +111,16 @@ export default function GruppaForm({
       }
 
       // Handle out_code === 2 (duplicate) - backend returns this in message
-      if (result.success) {
+      if (result.ok) {
         dispatch(
           toastPushed(
             'success',
-            result.message ?? t(isEdit ? 'success.updated' : 'success.created'),
+            result.error ?? t(isEdit ? 'success.updated' : 'success.created'),
           ),
         )
         onClose()
       } else {
-        dispatch(toastPushed('error', result.message ?? t('ucheb_groups.error_connection')))
+        dispatch(toastPushed('error', result.error ?? t('ucheb_groups.error_connection')))
       }
     } catch {
       dispatch(toastPushed('error', t('ucheb_groups.error_connection')))

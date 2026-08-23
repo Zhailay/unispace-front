@@ -153,16 +153,16 @@ export default function KalendarForm({
         result = await createKalendar(payload).unwrap()
       }
 
-      if (result.success) {
+      if (result.ok) {
         dispatch(
           toastPushed(
             'success',
-            result.message ?? t(isEdit ? 'kalendar.success_update' : 'kalendar.success_add'),
+            result.error ?? t(isEdit ? 'kalendar.success_update' : 'kalendar.success_add'),
           ),
         )
         onClose()
       } else {
-        dispatch(toastPushed('error', result.message ?? t('kalendar.error_connection')))
+        dispatch(toastPushed('error', result.error ?? t('kalendar.error_connection')))
       }
     } catch {
       dispatch(toastPushed('error', t('kalendar.error_connection')))

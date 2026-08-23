@@ -85,9 +85,9 @@ export default function GruppaPage() {
     const result = await deleteGruppa(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ??
-          (result.success ? t('ucheb_groups.success_delete') : t('ucheb_groups.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ??
+          (result.ok ? t('ucheb_groups.success_delete') : t('ucheb_groups.error_connection')),
       ),
     )
     setDeleteId(null)

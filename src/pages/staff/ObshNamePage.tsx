@@ -68,9 +68,9 @@ export default function ObshNamePage() {
     const result = await deleteObshName(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ??
-          (result.success ? t('obsh_name.success_delete') : t('obsh_name.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ??
+          (result.ok ? t('obsh_name.success_delete') : t('obsh_name.error_connection')),
       ),
     )
     setDeleteId(null)

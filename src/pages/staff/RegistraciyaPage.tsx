@@ -236,9 +236,9 @@ export default function RegistraciyaPage() {
       student_ids: Array.from(selectedStudents),
     }).unwrap()
 
-    dispatch(toastPushed(result.success ? 'success' : 'error', result.message ?? (result.success ? t('reg.success_save') : t('reg.error_connection'))))
+    dispatch(toastPushed(result.ok ? 'success' : 'error', result.error ?? (result.ok ? t('reg.success_save') : t('reg.error_connection'))))
 
-    if (result.success) {
+    if (result.ok) {
       refetchTable()
       setSelectedStudents(new Set())
     }
@@ -266,9 +266,9 @@ export default function RegistraciyaPage() {
       student_ids: Array.from(selectedStudents),
     }).unwrap()
 
-    dispatch(toastPushed(result.success ? 'success' : 'error', result.message ?? (result.success ? t('reg.success_delete') : t('reg.error_connection'))))
+    dispatch(toastPushed(result.ok ? 'success' : 'error', result.error ?? (result.ok ? t('reg.success_delete') : t('reg.error_connection'))))
 
-    if (result.success) {
+    if (result.ok) {
       refetchTable()
       setSelectedStudents(new Set())
     }

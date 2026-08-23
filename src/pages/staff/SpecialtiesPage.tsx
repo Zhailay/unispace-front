@@ -77,9 +77,9 @@ export default function SpecialtiesPage() {
     const result = await deleteSpecialty(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ??
-          (result.success ? t('specialties.success_delete') : t('specialties.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ??
+          (result.ok ? t('specialties.success_delete') : t('specialties.error_connection')),
       ),
     )
     setDeleteId(null)

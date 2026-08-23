@@ -1,9 +1,7 @@
 /**
  * Формы ответов бэка.
  *
- * Исторически контроллеры отвечают тремя разными способами — при переносе
- * страниц это постепенно сводится к ApiOk/ApiError, но пока фронт должен
- * уметь читать все три.
+ * Все эндпоинты возвращают единый формат: { ok: true, data?, ... } или { ok: false, error }.
  */
 
 /** Успех: { ok: true, ... } */
@@ -18,25 +16,26 @@ export interface ApiError {
 }
 
 /**
- * Ответ страничного контроллера через слой совместимости (apiCompat.js):
- * бывший res.render() отдаёт данные шаблона в поле data.
+ * Ответ страничного контроллера: { ok: true, data: {...} }
  */
 export interface PageResponse<T> {
   ok: true
-  page: string
-  title: string | null
-  activePage: string | null
-  user: CurrentUser | null
-  flash: { success: string | null; error: string | null }
   data: T
 }
 
-/** Старый формат CRUD-эндпоинтов: { success, message, data } */
+/**
+ * Новый формат CRUD-эндпоинтов: { ok, error?, data?, totalCount? }
+ * Совместим со старым форматом через алиасы success->ok, message->error
+ */
 export interface LegacyResponse<T = unknown> {
-  success: boolean
-  message?: string
+  ok: boolean
+  error?: string
   data?: T
   totalCount?: number
+  /** @deprecated use ok */
+  success?: boolean
+  /** @deprecated use error */
+  message?: string
 }
 
 /**

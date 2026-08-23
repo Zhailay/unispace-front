@@ -106,8 +106,8 @@ export default function KalendarPage() {
     const result = await deleteKalendar(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ?? (result.success ? t('kalendar.success_delete') : t('kalendar.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ?? (result.ok ? t('kalendar.success_delete') : t('kalendar.error_connection')),
       ),
     )
     setDeleteId(null)

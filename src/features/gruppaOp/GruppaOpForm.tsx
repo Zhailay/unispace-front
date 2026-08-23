@@ -90,16 +90,16 @@ export default function GruppaOpForm({ open, onClose, editRow }: Props) {
       }
 
       // Handle out_code === 2 (duplicate) - backend returns this in message
-      if (result.success) {
+      if (result.ok) {
         dispatch(
           toastPushed(
             'success',
-            result.message ?? t(isEdit ? 'success.updated' : 'success.created'),
+            result.error ?? t(isEdit ? 'success.updated' : 'success.created'),
           ),
         )
         onClose()
       } else {
-        dispatch(toastPushed('error', result.message ?? t('gruppa_op.error_connection')))
+        dispatch(toastPushed('error', result.error ?? t('gruppa_op.error_connection')))
       }
     } catch {
       dispatch(toastPushed('error', t('gruppa_op.error_connection')))

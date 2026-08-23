@@ -97,8 +97,8 @@ export default function PlanPage() {
     const result = await deletePlan(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ?? (result.success ? t('plan.success_delete') : t('plan.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ?? (result.ok ? t('plan.success_delete') : t('plan.error_connection')),
       ),
     )
     setDeleteId(null)

@@ -108,9 +108,9 @@ export default function StudentsPage() {
     const result = await deleteStudent(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ??
-          (result.success ? t('ucheb_students.success_delete') : t('ucheb_students.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ??
+          (result.ok ? t('ucheb_students.success_delete') : t('ucheb_students.error_connection')),
       ),
     )
     setDeleteId(null)

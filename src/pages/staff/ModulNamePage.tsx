@@ -74,9 +74,9 @@ export default function ModulNamePage() {
     const result = await deleteModulName(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ??
-          (result.success ? t('modul_name.success_delete') : t('modul_name.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ??
+          (result.ok ? t('modul_name.success_delete') : t('modul_name.error_connection')),
       ),
     )
     setDeleteId(null)

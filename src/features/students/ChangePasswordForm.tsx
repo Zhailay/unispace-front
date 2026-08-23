@@ -44,11 +44,11 @@ export default function ChangePasswordForm({ open, onClose, studentId }: Props) 
         student_password_value: password,
       }).unwrap()
 
-      if (result.success) {
-        dispatch(toastPushed('success', result.message ?? t('success.updated')))
+      if (result.ok) {
+        dispatch(toastPushed('success', result.error ?? t('success.updated')))
         onClose()
       } else {
-        dispatch(toastPushed('error', result.message ?? t('ucheb_students.error_connection')))
+        dispatch(toastPushed('error', result.error ?? t('ucheb_students.error_connection')))
       }
     } catch {
       dispatch(toastPushed('error', t('ucheb_students.error_connection')))

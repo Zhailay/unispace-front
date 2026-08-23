@@ -73,9 +73,9 @@ export default function DisciplinaPage() {
     const result = await deleteDisciplina(deleteId).unwrap()
     dispatch(
       toastPushed(
-        result.success ? 'success' : 'error',
-        result.message ??
-          (result.success ? t('disciplina.success_delete') : t('disciplina.error_connection')),
+        result.ok ? 'success' : 'error',
+        result.error ??
+          (result.ok ? t('disciplina.success_delete') : t('disciplina.error_connection')),
       ),
     )
     setDeleteId(null)

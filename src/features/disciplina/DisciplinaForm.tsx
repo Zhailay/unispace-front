@@ -132,16 +132,16 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
         return
       }
 
-      if (result.success) {
+      if (result.ok) {
         dispatch(
           toastPushed(
             'success',
-            result.message ?? t(isEdit ? 'disciplina.success_update' : 'disciplina.success_add'),
+            result.error ?? t(isEdit ? 'disciplina.success_update' : 'disciplina.success_add'),
           ),
         )
         onClose()
       } else {
-        dispatch(toastPushed('error', result.message ?? t('disciplina.error_connection')))
+        dispatch(toastPushed('error', result.error ?? t('disciplina.error_connection')))
       }
     } catch {
       dispatch(toastPushed('error', t('disciplina.error_connection')))

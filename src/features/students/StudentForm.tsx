@@ -187,16 +187,16 @@ export default function StudentForm({
         }).unwrap()
       }
 
-      if (result.success) {
+      if (result.ok) {
         dispatch(
           toastPushed(
             'success',
-            result.message ?? t(isEdit ? 'success.updated' : 'success.created'),
+            result.error ?? t(isEdit ? 'success.updated' : 'success.created'),
           ),
         )
         onClose()
       } else {
-        dispatch(toastPushed('error', result.message ?? t('ucheb_students.error_connection')))
+        dispatch(toastPushed('error', result.error ?? t('ucheb_students.error_connection')))
       }
     } catch {
       dispatch(toastPushed('error', t('ucheb_students.error_connection')))

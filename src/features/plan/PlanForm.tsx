@@ -224,16 +224,16 @@ export default function PlanForm({
         }).unwrap()
       }
 
-      if (result.success) {
+      if (result.ok) {
         dispatch(
           toastPushed(
             'success',
-            result.message ?? t(isEdit ? 'plan.success_update' : 'plan.success_add'),
+            result.error ?? t(isEdit ? 'plan.success_update' : 'plan.success_add'),
           ),
         )
         onClose()
       } else {
-        dispatch(toastPushed('error', result.message ?? t('plan.error_connection')))
+        dispatch(toastPushed('error', result.error ?? t('plan.error_connection')))
       }
     } catch {
       dispatch(toastPushed('error', t('plan.error_connection')))

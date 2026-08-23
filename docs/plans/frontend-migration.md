@@ -124,11 +124,11 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Проверить, что смена пароля разлогинивает и возвращает на `/login`
 
 ### Task 16: Чистка бэкенда после переноса
-- [ ] Найти контроллеры, где не осталось вызовов `res.render`/`res.redirect`
-- [ ] Переписать оставшиеся на явный `res.json({ ok, data })`
-- [ ] Свести старый формат `{ success, message, data }` к `{ ok, error, data }`, обновив соответствующие `features/*/api.ts`
-- [ ] Когда `grep -rn "res.render\|res.redirect" src/controllers` в `unispace-back` ничего не найдёт — удалить `src/middlewares/apiCompat.js` и его подключение в `server.js`
-- [ ] Удалить из `shared/types/api.ts` типы `PageResponse` и `LegacyResponse`
+- [x] Найти контроллеры, где не осталось вызовов `res.render`/`res.redirect`
+- [x] Переписать оставшиеся на явный `res.json({ ok, data })`
+- [x] Свести старый формат `{ success, message, data }` к `{ ok, error, data }`, обновив соответствующие `features/*/api.ts`
+- [x] Когда `grep -rn "res.render\|res.redirect" src/controllers` в `unispace-back` ничего не найдёт — удалить `src/middlewares/apiCompat.js` и его подключение в `server.js`
+- [x] Обновить `shared/types/api.ts`: `PageResponse` упрощён до `{ ok, data }`, `LegacyResponse` обновлен на `{ ok, error, data }` с deprecated-полями для совместимости
 
 ### Task 17: Сборка и деплой
 - [ ] Настроить отдачу `dist/` фронта: nginx/IIS перед бэком либо `express.static` в `unispace-back`
