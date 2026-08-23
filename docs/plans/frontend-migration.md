@@ -76,10 +76,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршрут и пункт меню
 
 ### Task 9: Модуль «Учебный план» (plan)
-- [ ] `features/plan/planApi.ts` — 7 эндпоинтов из `routes/plan.js`
-- [ ] `pages/staff/PlanPage.tsx` — план по семестрам, виды занятий, формы контроля
-- [ ] Сверить с `unispace/src/views/ucheb/plan.hbs` (797 строк)
-- [ ] Маршрут и пункт меню
+- [x] `features/plan/planApi.ts` — 7 эндпоинтов из `routes/plan.js`
+- [x] `pages/staff/PlanPage.tsx` — план по семестрам, виды занятий, формы контроля
+- [x] Сверить с `unispace/src/views/ucheb/plan.hbs` (797 строк)
+- [x] Маршрут и пункт меню
 
 ### Task 10: Модуль «Регистрация» (registraciya)
 - [ ] `features/registraciya/registraciyaApi.ts` — 8 эндпоинтов из `routes/registraciya.js`

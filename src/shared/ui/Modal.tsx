@@ -5,9 +5,10 @@ interface Props {
   onClose: () => void
   title?: string
   children: ReactNode
+  className?: string
 }
 
-export default function Modal({ open, onClose, title, children }: Props) {
+export default function Modal({ open, onClose, title, children, className = '' }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
@@ -50,7 +51,7 @@ export default function Modal({ open, onClose, title, children }: Props) {
   return (
     <dialog
       ref={dialogRef}
-      className="max-w-lg w-full rounded-card border border-border bg-surface p-0 backdrop:bg-black/50"
+      className={`max-w-lg w-full rounded-card border border-border bg-surface p-0 backdrop:bg-black/50 ${className}`}
     >
       <div className="p-6">
         {title && <h2 className="mb-4 text-lg font-semibold">{title}</h2>}

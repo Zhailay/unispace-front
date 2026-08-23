@@ -13,6 +13,7 @@ import DisciplinaPage from '@/pages/staff/DisciplinaPage'
 import ModulNamePage from '@/pages/staff/ModulNamePage'
 import ObshNamePage from '@/pages/staff/ObshNamePage'
 import KalendarPage from '@/pages/staff/KalendarPage'
+import PlanPage from '@/pages/staff/PlanPage'
 import StudentDashboardPage from '@/pages/student/StudentDashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import Spinner from '@/shared/ui/Spinner'
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/staff/modul-name" element={<ModulNamePage />} />
             <Route path="/staff/obsh-name" element={<ObshNamePage />} />
             <Route path="/staff/kalendar" element={<KalendarPage />} />
+            <Route path="/staff/plan" element={<PlanPage />} />
           </Route>
         </Route>
 
