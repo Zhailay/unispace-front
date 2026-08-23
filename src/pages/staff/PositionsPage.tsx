@@ -28,9 +28,9 @@ export default function PositionsPage() {
   const { data: pageData, isFetching } = usePositionsPageQuery({ search })
   const [deletePosition, { isLoading: isDeleting }] = useDeletePositionMutation()
 
-  const positions = pageData?.data.positions ?? []
-  const vidPersonalList = pageData?.data.vidPersonalList ?? []
-  const meta = pageData?.data.meta ?? { total: 0 }
+  const positions = pageData?.data?.positions ?? []
+  const vidPersonalList = pageData?.data?.vidPersonalList ?? []
+  const meta = pageData?.data?.meta ?? { total: 0 }
 
   function handleCreate() {
     setEditRow(null)

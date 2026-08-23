@@ -45,7 +45,7 @@ export default function DisciplinaPage() {
   const rows = data?.data ?? []
   const total = data?.totalCount ?? 0
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1)
-  const podrazdelenieList = pageData?.data.podrazdelenie_list ?? []
+  const podrazdelenieList = pageData?.data?.podrazdelenie_list ?? []
 
   function handleCreate() {
     setEditRow(null)

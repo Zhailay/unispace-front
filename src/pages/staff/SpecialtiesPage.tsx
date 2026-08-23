@@ -49,7 +49,7 @@ export default function SpecialtiesPage() {
   const rows = data?.data ?? []
   const total = data?.totalCount ?? 0
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1)
-  const gruppaOpList = pageData?.data.gruppaOpList ?? []
+  const gruppaOpList = pageData?.data?.gruppaOpList ?? []
 
   function handleCreate() {
     setEditRow(null)

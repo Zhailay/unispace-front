@@ -112,9 +112,9 @@ export default function DepartmentsPage() {
   const { data: pageData, isFetching } = useDepartmentsPageQuery({ search })
   const [deleteDepartment, { isLoading: isDeleting }] = useDeleteDepartmentMutation()
 
-  const departments = pageData?.data.departments
-  const vidList = pageData?.data.vidList ?? []
-  const meta = pageData?.data.meta ?? { total: 0, active: 0 }
+  const departments = pageData?.data?.departments
+  const vidList = pageData?.data?.vidList ?? []
+  const meta = pageData?.data?.meta ?? { total: 0, active: 0 }
 
   // Build tree from flat list
   const tree = useMemo<DepartmentTree>(() => {

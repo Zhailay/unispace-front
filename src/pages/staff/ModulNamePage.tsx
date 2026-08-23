@@ -43,7 +43,7 @@ export default function ModulNamePage() {
   const rows = data?.data ?? []
   const total = data?.totalCount ?? 0
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1)
-  const tipModulList = pageData?.data.tipModulList ?? []
+  const tipModulList = pageData?.data?.tipModulList ?? []
 
   // Create a map for tip_modul_id to tip_modul_name
   const tipModulMap = new Map(tipModulList.map((item) => [String(item.tip_modul_id), item.tip_modul_name]))

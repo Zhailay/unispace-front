@@ -28,12 +28,12 @@ export default function EmployeesPage() {
   const { data: pageData, isFetching } = useEmployeesPageQuery({ search })
   const [deleteEmployee, { isLoading: isDeleting }] = useDeleteEmployeeMutation()
 
-  const employees = pageData?.data.employees ?? []
-  const departments = pageData?.data.departments ?? []
-  const positions = pageData?.data.positions ?? []
-  const formaList = pageData?.data.formaList ?? []
-  const shtatnostList = pageData?.data.shtatnostList ?? []
-  const meta = pageData?.data.meta ?? { total: 0, active: 0 }
+  const employees = pageData?.data?.employees ?? []
+  const departments = pageData?.data?.departments ?? []
+  const positions = pageData?.data?.positions ?? []
+  const formaList = pageData?.data?.formaList ?? []
+  const shtatnostList = pageData?.data?.shtatnostList ?? []
+  const meta = pageData?.data?.meta ?? { total: 0, active: 0 }
 
   function handleCreate() {
     setEditRow(null)
