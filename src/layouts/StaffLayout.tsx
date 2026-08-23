@@ -13,6 +13,7 @@ const NAV = [
   { to: '/staff/gruppa-op', end: false, labelKey: 'nav.gruppa_op' },
   { to: '/staff/specialties', end: false, labelKey: 'nav.specialties' },
   { to: '/staff/gruppa', end: false, labelKey: 'nav.gruppa' },
+  { to: '/staff/students', end: false, labelKey: 'nav.ucheb_students' },
 ] as const
 
 export default function StaffLayout() {

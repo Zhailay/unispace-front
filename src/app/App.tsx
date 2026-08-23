@@ -8,6 +8,7 @@ import StaffDashboardPage from '@/pages/staff/StaffDashboardPage'
 import SpecialtiesPage from '@/pages/staff/SpecialtiesPage'
 import GruppaOpPage from '@/pages/staff/GruppaOpPage'
 import GruppaPage from '@/pages/staff/GruppaPage'
+import StudentsPage from '@/pages/staff/StudentsPage'
 import StudentDashboardPage from '@/pages/student/StudentDashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import Spinner from '@/shared/ui/Spinner'
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/staff/specialties" element={<SpecialtiesPage />} />
             <Route path="/staff/gruppa-op" element={<GruppaOpPage />} />
             <Route path="/staff/gruppa" element={<GruppaPage />} />
+            <Route path="/staff/students" element={<StudentsPage />} />
           </Route>
         </Route>
 

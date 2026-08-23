@@ -58,10 +58,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршрут и пункт меню
 
 ### Task 6: Модуль «Студенты» (students)
-- [ ] `features/students/studentsApi.ts` — 7 эндпоинтов из `routes/students.js`
-- [ ] `pages/staff/StudentsPage.tsx`: поиск, пагинация, карточка студента, перевод между группами
-- [ ] Сверить с `unispace/src/views/ucheb/students.hbs` — самый большой шаблон, 1086 строк
-- [ ] Маршрут и пункт меню
+- [x] `features/students/studentsApi.ts` — 7 эндпоинтов из `routes/students.js`
+- [x] `pages/staff/StudentsPage.tsx`: поиск, пагинация, карточка студента, перевод между группами
+- [x] Сверить с `unispace/src/views/ucheb/students.hbs` — самый большой шаблон, 1086 строк
+- [x] Маршрут и пункт меню
 
 ### Task 7: Модули «Дисциплины», «Модули», «Общие названия»
 - [ ] `features/disciplina/disciplinaApi.ts` + `pages/staff/DisciplinaPage.tsx` (`disciplina.hbs`, 597 строк)
