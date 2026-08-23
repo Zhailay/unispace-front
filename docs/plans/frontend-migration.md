@@ -112,10 +112,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршрут и пункт меню
 
 ### Task 14: Кадровый модуль (kadr)
-- [ ] `features/kadr/kadrApi.ts` — 12 эндпоинтов из `routes/kadr.js`
-- [ ] `pages/staff/DepartmentsPage.tsx`, `PositionsPage.tsx`, `EmployeesPage.tsx`
-- [ ] Сверить с `unispace/src/views/kadr/*.hbs`
-- [ ] Маршруты и пункты меню
+- [x] `features/kadr/kadrApi.ts` — 12 эндпоинтов из `routes/kadr.js`
+- [x] `pages/staff/DepartmentsPage.tsx`, `PositionsPage.tsx`, `EmployeesPage.tsx`
+- [x] Сверить с `unispace/src/views/kadr/*.hbs`
+- [x] Маршруты и пункты меню
 
 ### Task 15: Профили и дашборды
 - [ ] `pages/staff/StaffProfilePage.tsx` и `pages/student/StudentProfilePage.tsx` со сменой пароля через `/api/staff` и `/api/student`

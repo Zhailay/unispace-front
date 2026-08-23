@@ -23,6 +23,9 @@ const NAV = [
   { to: '/staff/jurnal', end: false, labelKey: 'nav.jurnal' },
   { to: '/staff/vneplanovoe', end: false, labelKey: 'nav.vneplanovoe' },
   { to: '/staff/test-upload', end: false, labelKey: 'nav.test_upload' },
+  { to: '/staff/departments', end: false, labelKey: 'nav.departments' },
+  { to: '/staff/positions', end: false, labelKey: 'nav.positions' },
+  { to: '/staff/employees', end: false, labelKey: 'nav.employees' },
 ] as const
 
 export default function StaffLayout() {

@@ -20,6 +20,9 @@ import VneplanovoePage from '@/pages/staff/VneplanovoePage'
 import TestUploadPage from '@/pages/staff/TestUploadPage'
 import TestPreviewPage from '@/pages/staff/TestPreviewPage'
 import TestManagePage from '@/pages/staff/TestManagePage'
+import DepartmentsPage from '@/pages/staff/DepartmentsPage'
+import PositionsPage from '@/pages/staff/PositionsPage'
+import EmployeesPage from '@/pages/staff/EmployeesPage'
 import StudentDashboardPage from '@/pages/student/StudentDashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import Spinner from '@/shared/ui/Spinner'
@@ -62,6 +65,9 @@ export default function App() {
             <Route path="/staff/test-upload" element={<TestUploadPage />} />
             <Route path="/staff/test-upload/preview" element={<TestPreviewPage />} />
             <Route path="/staff/test-upload/manage/:id" element={<TestManagePage />} />
+            <Route path="/staff/departments" element={<DepartmentsPage />} />
+            <Route path="/staff/positions" element={<PositionsPage />} />
+            <Route path="/staff/employees" element={<EmployeesPage />} />
           </Route>
         </Route>
 
