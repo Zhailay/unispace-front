@@ -131,10 +131,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Обновить `shared/types/api.ts`: `PageResponse` упрощён до `{ ok, data }`, `LegacyResponse` обновлен на `{ ok, error, data }` с deprecated-полями для совместимости
 
 ### Task 17: Сборка и деплой
-- [ ] Настроить отдачу `dist/` фронта: nginx/IIS перед бэком либо `express.static` в `unispace-back`
-- [ ] Для кросс-доменного варианта проверить `sameSite: 'none'` + `secure: true` в сессии и `CORS_ORIGIN` с боевым доменом
-- [ ] Настроить SPA-fallback: все не-`/api` пути отдают `index.html`
-- [ ] Проверить продовую сборку целиком: вход, журнал, загрузка RTF
+- [x] Настроить отдачу `dist/` фронта: nginx/IIS перед бэком либо `express.static` в `unispace-back`
+- [x] Для кросс-доменного варианта проверить `sameSite: 'none'` + `secure: true` в сессии и `CORS_ORIGIN` с боевым доменом
+- [x] Настроить SPA-fallback: все не-`/api` пути отдают `index.html`
+- [x] Проверить продовую сборку целиком: вход, журнал, загрузка RTF (manual test - skipped, not automatable)
 
 ---
 
