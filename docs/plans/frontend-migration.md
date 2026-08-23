@@ -70,10 +70,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршруты и пункты меню для всех трёх
 
 ### Task 8: Модуль «Календарь» (kalendar)
-- [ ] `features/kalendar/kalendarApi.ts` — эндпоинты из `routes/kalendar.js`
-- [ ] `pages/staff/KalendarPage.tsx` — сетка учебных недель, привязка к периодам обучения
-- [ ] Сверить с `unispace/src/views/ucheb/kalendar.hbs` (569 строк)
-- [ ] Маршрут и пункт меню
+- [x] `features/kalendar/kalendarApi.ts` — эндпоинты из `routes/kalendar.js`
+- [x] `pages/staff/KalendarPage.tsx` — сетка учебных недель, привязка к периодам обучения
+- [x] Сверить с `unispace/src/views/ucheb/kalendar.hbs` (569 строк)
+- [x] Маршрут и пункт меню
 
 ### Task 9: Модуль «Учебный план» (plan)
 - [ ] `features/plan/planApi.ts` — 7 эндпоинтов из `routes/plan.js`

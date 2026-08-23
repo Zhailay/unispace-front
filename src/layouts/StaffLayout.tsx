@@ -17,6 +17,7 @@ const NAV = [
   { to: '/staff/disciplina', end: false, labelKey: 'nav.disciplina' },
   { to: '/staff/modul-name', end: false, labelKey: 'nav.modul_name' },
   { to: '/staff/obsh-name', end: false, labelKey: 'nav.obsh_name' },
+  { to: '/staff/kalendar', end: false, labelKey: 'nav.kalendar' },
 ] as const
 
 export default function StaffLayout() {
