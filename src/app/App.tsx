@@ -16,6 +16,7 @@ import KalendarPage from '@/pages/staff/KalendarPage'
 import PlanPage from '@/pages/staff/PlanPage'
 import RegistraciyaPage from '@/pages/staff/RegistraciyaPage'
 import JurnalPage from '@/pages/staff/JurnalPage'
+import VneplanovoePage from '@/pages/staff/VneplanovoePage'
 import StudentDashboardPage from '@/pages/student/StudentDashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import Spinner from '@/shared/ui/Spinner'
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="/staff/plan" element={<PlanPage />} />
             <Route path="/staff/registraciya" element={<RegistraciyaPage />} />
             <Route path="/staff/jurnal" element={<JurnalPage />} />
+            <Route path="/staff/vneplanovoe" element={<VneplanovoePage />} />
           </Route>
         </Route>
 

@@ -97,10 +97,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршрут и пункт меню
 
 ### Task 12: Модуль «Внеплановое» (vneplanovoe)
-- [ ] `features/vneplanovoe/vneplanovoeApi.ts` — 10 эндпоинтов из `routes/vneplanovoe.js`
-- [ ] `pages/staff/VneplanovoePage.tsx` — пересдачи, теоретическая часть и экзамен
-- [ ] Сверить с `unispace/src/views/ucheb/vneplanovoe.hbs` (391 строка)
-- [ ] Маршрут и пункт меню
+- [x] `features/vneplanovoe/vneplanovoeApi.ts` — 10 эндпоинтов из `routes/vneplanovoe.js`
+- [x] `pages/staff/VneplanovoePage.tsx` — пересдачи, теоретическая часть и экзамен
+- [x] Сверить с `unispace/src/views/ucheb/vneplanovoe.hbs` (391 строка)
+- [x] Маршрут и пункт меню
 
 ### Task 13: Модуль «Загрузка тестов» (test_upload)
 - [ ] `features/testUpload/testUploadApi.ts` — 15 эндпоинтов из `routes/test_upload.js`
