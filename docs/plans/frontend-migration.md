@@ -46,10 +46,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Убедиться, что после мутации список перезапрашивается по тегу `Specialty`
 
 ### Task 4: Модуль «Группы ОП» (gruppa_op)
-- [ ] `features/gruppaOp/gruppaOpApi.ts` — эндпоинты из `unispace-back/src/routes/gruppa_op.js`
-- [ ] `pages/staff/GruppaOpPage.tsx` по образцу `SpecialtiesPage`
-- [ ] Сверить с `unispace/src/views/ucheb/gruppa_op.hbs` (637 строк)
-- [ ] Добавить маршрут в `app/App.tsx` и пункт в `NAV` в `layouts/StaffLayout.tsx`
+- [x] `features/gruppaOp/gruppaOpApi.ts` — эндпоинты из `unispace-back/src/routes/gruppa_op.js`
+- [x] `pages/staff/GruppaOpPage.tsx` по образцу `SpecialtiesPage`
+- [x] Сверить с `unispace/src/views/ucheb/gruppa_op.hbs` (637 строк)
+- [x] Добавить маршрут в `app/App.tsx` и пункт в `NAV` в `layouts/StaffLayout.tsx`
 
 ### Task 5: Модуль «Группы» (gruppa)
 - [ ] `features/gruppa/gruppaApi.ts` — эндпоинты из `routes/gruppa.js`

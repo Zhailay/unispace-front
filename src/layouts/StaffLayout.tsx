@@ -10,6 +10,7 @@ import LogoutButton from '@/features/auth/LogoutButton'
  */
 const NAV = [
   { to: '/staff', end: true, labelKey: 'nav.dashboard' },
+  { to: '/staff/gruppa-op', end: false, labelKey: 'nav.gruppa_op' },
   { to: '/staff/specialties', end: false, labelKey: 'nav.specialties' },
 ] as const
 
