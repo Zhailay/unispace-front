@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { getLang } from '@/shared/i18n/lang'
 import type { ParseResult } from './testUploadApi'
 
@@ -193,6 +193,17 @@ export function useRtfUpload(): UseRtfUploadReturn {
     },
     [clearFakeTimer],
   )
+
+  // Cleanup on unmount: abort XHR and clear timer
+  useEffect(() => {
+    return () => {
+      if (xhrRef.current) {
+        xhrRef.current.abort()
+        xhrRef.current = null
+      }
+      clearFakeTimer()
+    }
+  }, [clearFakeTimer])
 
   return {
     ...state,

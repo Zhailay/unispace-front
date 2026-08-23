@@ -18,6 +18,7 @@ import { useT } from '@/shared/i18n/useT'
 import { Select } from '@/shared/ui/Field'
 import Button from '@/shared/ui/Button'
 import Spinner from '@/shared/ui/Spinner'
+import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 
 type TabId = 'teor' | 'exam'
@@ -57,6 +58,9 @@ export default function VneplanovoePage() {
   // Date inputs for students: Map<plan_student_id, { nachalo, konec }>
   const [teorDates, setTeorDates] = useState<Map<Id, { nachalo: string; konec: string }>>(new Map())
   const [examDates, setExamDates] = useState<Map<Id, { nachalo: string; konec: string }>>(new Map())
+
+  // Delete confirmation dialog
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   // Load page data (semestr list, den list)
   const { data: pageData, isLoading: isPageLoading } = useVneplanovoePageQuery()
@@ -252,8 +256,8 @@ export default function VneplanovoePage() {
     }
   }
 
-  // Delete theoretical spravka
-  const handleDeleteTeor = async () => {
+  // Delete theoretical spravka - show confirmation dialog
+  const handleDeleteTeorClick = () => {
     if (teorWeek === null || teorDay === null) {
       dispatch(toastPushed('error', t('vneplanovoe.select_week_day')))
       return
@@ -265,15 +269,18 @@ export default function VneplanovoePage() {
       return
     }
 
-    if (!confirm(t('vneplanovoe.confirm_delete'))) {
-      return
-    }
+    setShowDeleteConfirm(true)
+  }
+
+  // Confirm delete theoretical spravka
+  const handleConfirmDelete = async () => {
+    setShowDeleteConfirm(false)
 
     try {
       const result = await deleteTeorSpravka({
-        plan_student_ids: selectedIds,
-        id_nedelya: teorWeek,
-        id_den: teorDay,
+        plan_student_ids: Array.from(checkedTeor),
+        id_nedelya: teorWeek!,
+        id_den: teorDay!,
       }).unwrap()
 
       if (result.ok) {
@@ -532,7 +539,7 @@ export default function VneplanovoePage() {
                             <Button onClick={handleSaveTeor} loading={isSavingTeor}>
                               {t('vneplanovoe.create')}
                             </Button>
-                            <Button variant="secondary" onClick={handleDeleteTeor} loading={isDeletingTeor}>
+                            <Button variant="secondary" onClick={handleDeleteTeorClick} loading={isDeletingTeor}>
                               {t('vneplanovoe.delete')}
                             </Button>
                           </div>
@@ -687,6 +694,16 @@ export default function VneplanovoePage() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('common.delete')}
+        message={t('vneplanovoe.confirm_delete')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+      />
     </div>
   )
 }

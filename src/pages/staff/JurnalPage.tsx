@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect, Fragment } from 'react'
 import { useAppDispatch } from '@/app/hooks'
 import { toastPushed } from '@/features/ui/uiSlice'
 import {
@@ -246,14 +246,18 @@ export default function JurnalPage() {
       return
     }
 
-    await saveGrades({ grades, jurnal_type: 1 }).unwrap()
-    dispatch(toastPushed('success', t('reg.success_save')))
-    setGradeEdits(new Map())
+    try {
+      await saveGrades({ grades, jurnal_type: 1 }).unwrap()
+      dispatch(toastPushed('success', t('reg.success_save')))
+      setGradeEdits(new Map())
 
-    if (context === 'pp') {
-      refetchPpStudents()
-    } else {
-      refetchTkStudents()
+      if (context === 'pp') {
+        refetchPpStudents()
+      } else {
+        refetchTkStudents()
+      }
+    } catch {
+      dispatch(toastPushed('error', t('common.error')))
     }
   }
 
@@ -276,14 +280,18 @@ export default function JurnalPage() {
       return
     }
 
-    await saveGrades({ grades, jurnal_type: context === 'exam' ? 2 : 1 }).unwrap()
-    dispatch(toastPushed('success', t('reg.success_save')))
-    setGradeEdits(new Map())
+    try {
+      await saveGrades({ grades, jurnal_type: context === 'exam' ? 2 : 1 }).unwrap()
+      dispatch(toastPushed('success', t('reg.success_save')))
+      setGradeEdits(new Map())
 
-    if (context === 'exam') {
-      refetchExamStudents()
-    } else {
-      refetchIaStudents()
+      if (context === 'exam') {
+        refetchExamStudents()
+      } else {
+        refetchIaStudents()
+      }
+    } catch {
+      dispatch(toastPushed('error', t('common.error')))
     }
   }
 
@@ -1037,5 +1045,3 @@ function ExamTable({ students, gradeEdits, onEdit }: ExamTableProps) {
   )
 }
 
-// Need Fragment import
-import { Fragment } from 'react'

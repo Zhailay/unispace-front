@@ -45,7 +45,7 @@ export default function ChangePasswordForm({ open, onClose, studentId }: Props) 
       }).unwrap()
 
       if (result.ok) {
-        dispatch(toastPushed('success', result.error ?? t('success.updated')))
+        dispatch(toastPushed('success', t('success.updated')))
         onClose()
       } else {
         dispatch(toastPushed('error', result.error ?? t('ucheb_students.error_connection')))

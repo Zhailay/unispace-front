@@ -191,7 +191,7 @@ export default function StudentForm({
         dispatch(
           toastPushed(
             'success',
-            result.error ?? t(isEdit ? 'success.updated' : 'success.created'),
+            t(isEdit ? 'success.updated' : 'success.created'),
           ),
         )
         onClose()
