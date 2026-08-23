@@ -276,11 +276,14 @@ export default function VneplanovoePage() {
   const handleConfirmDelete = async () => {
     setShowDeleteConfirm(false)
 
+    // Guard against state changes between dialog open and confirm
+    if (teorWeek === null || teorDay === null) return
+
     try {
       const result = await deleteTeorSpravka({
         plan_student_ids: Array.from(checkedTeor),
-        id_nedelya: teorWeek!,
-        id_den: teorDay!,
+        id_nedelya: teorWeek,
+        id_den: teorDay,
       }).unwrap()
 
       if (result.ok) {

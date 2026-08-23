@@ -242,7 +242,7 @@ export default function JurnalPage() {
     })
 
     if (grades.length === 0) {
-      dispatch(toastPushed('error', t('jurnal.select_filter_prompt')))
+      dispatch(toastPushed('error', t('jurnal.no_grades_to_save') || t('common.error')))
       return
     }
 
@@ -276,7 +276,7 @@ export default function JurnalPage() {
     })
 
     if (grades.length === 0) {
-      dispatch(toastPushed('error', t('jurnal.select_filter_prompt')))
+      dispatch(toastPushed('error', t('jurnal.no_grades_to_save') || t('common.error')))
       return
     }
 
@@ -601,7 +601,7 @@ export default function JurnalPage() {
                       </p>
                     )}
                     <ExamTable students={examStudents ?? []} gradeEdits={gradeEdits} onEdit={handleGradeEdit} />
-                    {examStudents?.length && !examStudents[0]?.is_locked ? (
+                    {examStudents?.length && !examStudents.some((s) => s.is_locked) ? (
                       <div className="mt-4 flex justify-end" style={{ maxWidth: 480 }}>
                         <Button onClick={() => handleSaveExam('exam')} loading={isSaving}>
                           {t('reg.save')}
@@ -990,7 +990,7 @@ interface ExamTableProps {
 }
 
 function ExamTable({ students, gradeEdits, onEdit }: ExamTableProps) {
-  const isLocked = students[0]?.is_locked ?? false
+  const isLocked = students.some((s) => s.is_locked)
 
   return (
     <div className="overflow-x-auto" style={{ maxWidth: 480 }}>
