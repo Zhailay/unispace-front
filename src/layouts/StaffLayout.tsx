@@ -12,6 +12,7 @@ const NAV = [
   { to: '/staff', end: true, labelKey: 'nav.dashboard' },
   { to: '/staff/gruppa-op', end: false, labelKey: 'nav.gruppa_op' },
   { to: '/staff/specialties', end: false, labelKey: 'nav.specialties' },
+  { to: '/staff/gruppa', end: false, labelKey: 'nav.gruppa' },
 ] as const
 
 export default function StaffLayout() {

@@ -52,10 +52,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Добавить маршрут в `app/App.tsx` и пункт в `NAV` в `layouts/StaffLayout.tsx`
 
 ### Task 5: Модуль «Группы» (gruppa)
-- [ ] `features/gruppa/gruppaApi.ts` — эндпоинты из `routes/gruppa.js`
-- [ ] `pages/staff/GruppaPage.tsx`, каскад справочников (специальность, форма обучения, год, курс)
-- [ ] Сверить с `unispace/src/views/ucheb/gruppa.hbs` (669 строк)
-- [ ] Маршрут и пункт меню
+- [x] `features/gruppa/gruppaApi.ts` — эндпоинты из `routes/gruppa.js`
+- [x] `pages/staff/GruppaPage.tsx`, каскад справочников (специальность, форма обучения, год, курс)
+- [x] Сверить с `unispace/src/views/ucheb/gruppa.hbs` (669 строк)
+- [x] Маршрут и пункт меню
 
 ### Task 6: Модуль «Студенты» (students)
 - [ ] `features/students/studentsApi.ts` — 7 эндпоинтов из `routes/students.js`
