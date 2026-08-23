@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { useAppDispatch, useAppSelector } from '@/app/hooks'
+import { useAppDispatch } from '@/app/hooks'
 import { toastPushed } from '@/features/ui/uiSlice'
 import {
-  specName,
   useDeleteSpecialtyMutation,
   useSpecialtiesPageQuery,
   useSpecialtiesQuery,
   type SpecialtyRow,
 } from '@/features/specialties/specialtiesApi'
+import SpecialtyForm from '@/features/specialties/SpecialtyForm'
+import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
@@ -19,16 +20,23 @@ import Pagination from '@/shared/ui/Pagination'
 const PAGE_SIZE = 20
 
 /**
- * Эталонная страница-справочник: поиск + пагинация + удаление.
- * Остальные справочники (группы, дисциплины, модули) переносятся по этому образцу.
+ * Specialty directory page: search, pagination, create, edit, delete.
+ * Matches behavior from unispace/src/views/ucheb/specialties.hbs
  */
 export default function SpecialtiesPage() {
   const t = useT()
   const dispatch = useAppDispatch()
-  const lang = useAppSelector((s) => s.ui.lang)
 
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
+
+  // Form modal state
+  const [formOpen, setFormOpen] = useState(false)
+  const [editRow, setEditRow] = useState<SpecialtyRow | null>(null)
+
+  // Delete confirmation state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [deleteId, setDeleteId] = useState<Id | null>(null)
 
   const { data: pageData } = useSpecialtiesPageQuery()
   const { data, isFetching } = useSpecialtiesQuery({
@@ -41,17 +49,45 @@ export default function SpecialtiesPage() {
   const rows = data?.data ?? []
   const total = data?.totalCount ?? 0
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1)
+  const gruppaOpList = pageData?.data.gruppaOpList ?? []
 
-  async function handleDelete(id: Id) {
-    const result = await deleteSpecialty(id).unwrap()
+  function handleCreate() {
+    setEditRow(null)
+    setFormOpen(true)
+  }
+
+  function handleEdit(row: SpecialtyRow) {
+    setEditRow(row)
+    setFormOpen(true)
+  }
+
+  function handleCloseForm() {
+    setFormOpen(false)
+    setEditRow(null)
+  }
+
+  function handleDeleteClick(id: Id) {
+    setDeleteId(id)
+    setDeleteConfirmOpen(true)
+  }
+
+  async function handleDeleteConfirm() {
+    if (!deleteId) return
+    setDeleteConfirmOpen(false)
+    const result = await deleteSpecialty(deleteId).unwrap()
     dispatch(
       toastPushed(
         result.success ? 'success' : 'error',
-        // Бэк присылает готовый текст; ключи локалей — запасной вариант.
         result.message ??
           (result.success ? t('specialties.success_delete') : t('specialties.error_connection')),
       ),
     )
+    setDeleteId(null)
+  }
+
+  function handleDeleteCancel() {
+    setDeleteConfirmOpen(false)
+    setDeleteId(null)
   }
 
   const columns: Column<SpecialtyRow>[] = [
@@ -61,21 +97,41 @@ export default function SpecialtiesPage() {
       render: (row) => row.out_spec_kod,
     },
     {
-      key: 'name',
+      key: 'name_kz',
+      header: t('specialties.name_kz'),
+      render: (row) => row.out_spec_kz,
+    },
+    {
+      key: 'name_ru',
       header: t('specialties.name_ru'),
-      render: (row) => specName(row, lang),
+      render: (row) => row.out_spec_ru,
+    },
+    {
+      key: 'name_en',
+      header: t('specialties.name_en'),
+      render: (row) => row.out_spec_en,
+    },
+    {
+      key: 'gruppa_op',
+      header: t('specialties.gruppa_op'),
+      render: (row) => row.out_gruppa_op_name ?? '',
     },
     {
       key: 'actions',
       header: t('specialties.actions'),
       render: (row) => (
-        <Button
-          variant="danger"
-          loading={isDeleting}
-          onClick={() => handleDelete(row.out_spec_id)}
-        >
-          {t('common.delete')}
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => handleEdit(row)}>
+            {t('common.edit')}
+          </Button>
+          <Button
+            variant="danger"
+            loading={isDeleting && deleteId === row.out_spec_id}
+            onClick={() => handleDeleteClick(row.out_spec_id)}
+          >
+            {t('common.delete')}
+          </Button>
+        </div>
       ),
     },
   ]
@@ -88,16 +144,19 @@ export default function SpecialtiesPage() {
         <span className="ml-auto text-sm text-muted">{total}</span>
       </div>
 
-      <Input
-        label={t('specialties.search')}
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value)
-          setPage(0)
-        }}
-        placeholder={t('common.search')}
-        className="max-w-sm"
-      />
+      <div className="flex items-end gap-3">
+        <Input
+          label={t('specialties.search')}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value)
+            setPage(0)
+          }}
+          placeholder={t('common.search')}
+          className="max-w-sm"
+        />
+        <Button onClick={handleCreate}>{t('specialties.create')}</Button>
+      </div>
 
       <DataTable
         columns={columns}
@@ -108,12 +167,22 @@ export default function SpecialtiesPage() {
 
       <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
 
-      {/* Список групп ОП уже загружен — понадобится для формы создания (Task 3 плана). */}
-      {pageData && (
-        <p className="text-xs text-muted">
-          {t('specialties.gruppa_op')}: {pageData.data.gruppaOpList.length}
-        </p>
-      )}
+      <SpecialtyForm
+        open={formOpen}
+        onClose={handleCloseForm}
+        gruppaOpList={gruppaOpList}
+        editRow={editRow}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        title={t('common.delete')}
+        message={t('specialties.confirm_delete')}
+        confirmText={t('specialties.yes')}
+        cancelText={t('specialties.no')}
+        onConfirm={handleDeleteConfirm}
+        onClose={handleDeleteCancel}
+      />
     </div>
   )
 }

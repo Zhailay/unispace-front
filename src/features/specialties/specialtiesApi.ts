@@ -1,13 +1,28 @@
 import { baseApi } from '@/app/api/baseApi'
-import type { LegacyResponse, PageResponse, SpisokRow } from '@/shared/types/api'
+import type { Id, LegacyResponse, PageResponse, SpisokRow } from '@/shared/types/api'
+import type { Lang } from '@/shared/i18n/lang'
 
-/** Строка из public.spec_full(4, ...) — процедура отдаёт колонки с префиксом out_. */
+/**
+ * Строка из public.spec_full(4, ...). Поля сверены с реальным ответом API,
+ * а не выведены по догадке: процедура отдаёт все три языка отдельными
+ * колонками, единого out_spec_name не существует.
+ */
 export interface SpecialtyRow {
-  out_spec_id: number
+  out_code: number | null
+  out_spec_id: Id
   out_spec_kod: string
-  out_spec_name: string
-  out_gruppa_op_name?: string | null
-  [key: string]: unknown
+  out_spec_kz: string
+  out_spec_ru: string
+  out_spec_en: string
+  out_id_gruppa_op: Id
+  out_gruppa_op_name: string | null
+}
+
+/** Выбирает нужную языковую колонку строки справочника. */
+export function specName(row: SpecialtyRow, lang: Lang): string {
+  if (lang === 'kk') return row.out_spec_kz
+  if (lang === 'en') return row.out_spec_en
+  return row.out_spec_ru
 }
 
 export interface SpecialtyInput {
@@ -44,12 +59,12 @@ export const specialtiesApi = baseApi.injectEndpoints({
       invalidatesTags: ['Specialty'],
     }),
 
-    updateSpecialty: build.mutation<LegacyResponse, SpecialtyInput & { spec_id: number }>({
+    updateSpecialty: build.mutation<LegacyResponse, SpecialtyInput & { spec_id: Id }>({
       query: (body) => ({ url: '/specialties', method: 'PUT', body }),
       invalidatesTags: ['Specialty'],
     }),
 
-    deleteSpecialty: build.mutation<LegacyResponse, number>({
+    deleteSpecialty: build.mutation<LegacyResponse, Id>({
       query: (spec_id) => ({ url: '/specialties', method: 'DELETE', body: { spec_id } }),
       invalidatesTags: ['Specialty'],
     }),

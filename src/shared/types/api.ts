@@ -39,9 +39,22 @@ export interface LegacyResponse<T = unknown> {
   totalCount?: number
 }
 
+/**
+ * ВАЖНО: все идентификаторы приходят СТРОКАМИ, а не числами.
+ *
+ * Драйвер `pg` отдаёт PostgreSQL bigint как string, потому что 64-битное
+ * целое не помещается в JS number без потери точности. Это касается любого
+ * `*_id` во всех модулях.
+ *
+ * Значит: сравнивать через `===` со строкой, а перед отправкой на бэк
+ * приводить как есть — процедуры принимают строку и сами кастуют к ::bigint.
+ * Никогда не писать `id === 10` или `parseInt(id)` в ключах React.
+ */
+export type Id = string
+
 /** Пользователь: студент или сотрудник. Роли на бэке не реализованы. */
 export interface CurrentUser {
-  id: number
+  id: Id
   iin: string
   lastName: string
   firstName: string
@@ -49,7 +62,7 @@ export interface CurrentUser {
   fullName: string
   type: UserType
   /** Присутствует только у сотрудников */
-  sotrudnik_id?: number
+  sotrudnik_id?: Id
 }
 
 export type UserType = 'student' | 'sotrudnik'

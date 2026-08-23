@@ -39,11 +39,11 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Переписать `SpecialtiesPage` на `DataTable` + `Pagination`, поведение не меняя
 
 ### Task 3: Справочники — формы создания и редактирования
-- [ ] `features/specialties/SpecialtyForm.tsx`: поля `spec_kod`, `spec_kz`, `spec_ru`, `spec_en`, выбор `id_gruppa_op` из `gruppaOpList`
-- [ ] Подключить `useCreateSpecialtyMutation` и `useUpdateSpecialtyMutation`, показывать `message` из ответа тостом
-- [ ] Обработать `out_code === 2` (дубликат) отдельным текстом ошибки
-- [ ] Сверить состав полей и валидацию с `unispace/src/views/ucheb/specialties.hbs`
-- [ ] Убедиться, что после мутации список перезапрашивается по тегу `Specialty`
+- [x] `features/specialties/SpecialtyForm.tsx`: поля `spec_kod`, `spec_kz`, `spec_ru`, `spec_en`, выбор `id_gruppa_op` из `gruppaOpList`
+- [x] Подключить `useCreateSpecialtyMutation` и `useUpdateSpecialtyMutation`, показывать `message` из ответа тостом
+- [x] Обработать `out_code === 2` (дубликат) отдельным текстом ошибки
+- [x] Сверить состав полей и валидацию с `unispace/src/views/ucheb/specialties.hbs`
+- [x] Убедиться, что после мутации список перезапрашивается по тегу `Specialty`
 
 ### Task 4: Модуль «Группы ОП» (gruppa_op)
 - [ ] `features/gruppaOp/gruppaOpApi.ts` — эндпоинты из `unispace-back/src/routes/gruppa_op.js`
