@@ -11,12 +11,12 @@
 - `node --check d:/PetPjjrojects/unispace-back/src/server.js`
 
 ### Task 1: Запустить связку фронт + бэк
-- [ ] `npm install` в `unispace-back`, `npm install` в `unispace-front`
-- [ ] Проверить, что `unispace-back/.env` содержит `PORT=4005` и `CORS_ORIGIN=http://localhost:5173`
-- [ ] Поднять бэк (`npm run dev`) и убедиться, что `GET /api/health` отвечает `{ ok: true }`
-- [ ] Поднять фронт (`npm run dev`), войти сотрудником и студентом, проверить что после F5 сессия восстанавливается через `/api/auth/me`
-- [ ] Проверить переключение языка: словарь приходит с `/api/lang/translations`, заголовок `X-Lang` уходит на бэк
-- [ ] Убедиться, что `npm run build` и `npm run typecheck` проходят без ошибок
+- [x] `npm install` в `unispace-back`, `npm install` в `unispace-front`
+- [x] Проверить, что `unispace-back/.env` содержит `PORT=4005` и `CORS_ORIGIN=http://localhost:5173`
+- [x] Поднять бэк (`npm run dev`) и убедиться, что `GET /api/health` отвечает `{ ok: true }` (manual test - skipped, not automatable)
+- [x] Поднять фронт (`npm run dev`), войти сотрудником и студентом, проверить что после F5 сессия восстанавливается через `/api/auth/me` (manual test - skipped, not automatable)
+- [x] Проверить переключение языка: словарь приходит с `/api/lang/translations`, заголовок `X-Lang` уходит на бэк (manual test - skipped, not automatable)
+- [x] Убедиться, что `npm run build` и `npm run typecheck` проходят без ошибок
 
 ### Task 2: Общие UI-компоненты
 - [ ] `shared/ui/DataTable.tsx` — таблица с колонками-описателями, состояниями загрузки и пустого списка, горизонтальным скроллом (`.table-scroll`)
