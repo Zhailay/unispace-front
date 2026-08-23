@@ -4,11 +4,22 @@
 
 Каркас уже собран: store, baseApi с обработкой 401, авторизация, i18n через `/api/lang/translations`, два layout'а, тосты вместо flash-сообщений и эталонная страница-справочник `SpecialtiesPage`. Дальше — модуль за модулем по этому образцу. Оригинальная вёрстка и вся клиентская логика лежат в старом репозитории `d:\PetPjjrojects\unispace\src\views\` — это источник правды по поведению каждой страницы; сверяться с ним обязательно, придумывать поведение заново нельзя.
 
+**Локальная база.** Разработка идёт против копии в Docker, не против боевого сервера. Контейнер `unispace-pg` (том `unispace-pgdata`), порт **5433**, восстановлен из дампа от 23.08.2026: 74 таблицы, 140 функций, данные на месте. `unispace-back/.env` уже настроен на неё. Поднять после перезагрузки: `docker start unispace-pg`. Тестовые аккаунты — сотрудники `111` и `222`, студенты `333` и `444`, пароль у всех `password123` (задан локально; в боевой базе пароли другие).
+
+**Правило, обязательное для каждой задачи.** Имена полей в ответах API нельзя выводить по догадке — только сверять с реальным ответом. `tsc` проверяет, что поле есть в объявленном интерфейсе, но не то, что оно есть в ответе сервера: выдуманное поле проходит сборку и молча рендерится как `undefined`. Так уже была допущена ошибка — `out_spec_name` не существует, процедура отдаёт `out_spec_kz`, `out_spec_ru` и `out_spec_en` отдельными колонками. Перед описанием типов модуля запускать:
+
+```bash
+node scripts/api-fields.mjs /<путь эндпоинта>
+```
+
+И второе: **все `*_id` приходят строками, а не числами** — драйвер `pg` отдаёт `bigint` как string, потому что 64-битное целое не помещается в JS number. Использовать тип `Id` из `shared/types/api.ts`. Не писать `id === 10` и не пропускать идентификаторы через `parseInt`.
+
 ## Validation Commands
 - `npm --prefix d:/PetPjjrojects/unispace-front run typecheck`
 - `npm --prefix d:/PetPjjrojects/unispace-front run lint`
 - `npm --prefix d:/PetPjjrojects/unispace-front run build`
 - `node --check d:/PetPjjrojects/unispace-back/src/server.js`
+- `node d:/PetPjjrojects/unispace-front/scripts/api-fields.mjs`
 
 ### Task 1: Запустить связку фронт + бэк
 - [x] `npm install` в `unispace-back`, `npm install` в `unispace-front`
@@ -19,13 +30,13 @@
 - [x] Убедиться, что `npm run build` и `npm run typecheck` проходят без ошибок
 
 ### Task 2: Общие UI-компоненты
-- [ ] `shared/ui/DataTable.tsx` — таблица с колонками-описателями, состояниями загрузки и пустого списка, горизонтальным скроллом (`.table-scroll`)
-- [ ] `shared/ui/Modal.tsx` — диалог на нативном `<dialog>`, закрытие по Esc и клику вне, возврат фокуса
-- [ ] `shared/ui/Pagination.tsx` — вынести пагинацию из `SpecialtiesPage`
-- [ ] `shared/ui/ConfirmDialog.tsx` — подтверждение удаления вместо `confirm()` из hbs
-- [ ] `shared/hooks/useDebouncedValue.ts` — для поиска, чтобы не дёргать бэк на каждый символ
-- [ ] `shared/ui/CascadeSelect.tsx` — связанные списки семестр → дисциплина → группа → неделя; каждый следующий блокируется, пока не выбран предыдущий
-- [ ] Переписать `SpecialtiesPage` на `DataTable` + `Pagination`, поведение не меняя
+- [x] `shared/ui/DataTable.tsx` — таблица с колонками-описателями, состояниями загрузки и пустого списка, горизонтальным скроллом (`.table-scroll`)
+- [x] `shared/ui/Modal.tsx` — диалог на нативном `<dialog>`, закрытие по Esc и клику вне, возврат фокуса
+- [x] `shared/ui/Pagination.tsx` — вынести пагинацию из `SpecialtiesPage`
+- [x] `shared/ui/ConfirmDialog.tsx` — подтверждение удаления вместо `confirm()` из hbs
+- [x] `shared/hooks/useDebouncedValue.ts` — для поиска, чтобы не дёргать бэк на каждый символ
+- [x] `shared/ui/CascadeSelect.tsx` — связанные списки семестр → дисциплина → группа → неделя; каждый следующий блокируется, пока не выбран предыдущий
+- [x] Переписать `SpecialtiesPage` на `DataTable` + `Pagination`, поведение не меняя
 
 ### Task 3: Справочники — формы создания и редактирования
 - [ ] `features/specialties/SpecialtyForm.tsx`: поля `spec_kod`, `spec_kz`, `spec_ru`, `spec_en`, выбор `id_gruppa_op` из `gruppaOpList`
@@ -150,6 +161,10 @@ src/
 - `<entity>_spisok(yazyk_id)` — списки для выпадающих меню.
 
 Из-за префикса `out_` поля в ответах выглядят как `out_spec_kod`, а не `code`. Переименовывать их на фронте не нужно — типы описываются как есть (см. `SpecialtyRow`).
+
+**Многоязычные справочники хранят три колонки, а не одну.** Процедуры `*_full` возвращают `out_<entity>_kz`, `out_<entity>_ru`, `out_<entity>_en` — выбирать нужную по текущему языку на фронте (образец: функция `specName` в `features/specialties/specialtiesApi.ts`). При этом процедуры `*_spisok(yazyk_id)` наоборот отдают уже локализованное имя одной колонкой. Какой случай перед вами — проверять через `scripts/api-fields.mjs`, а не угадывать.
+
+**Идентификаторы — строки.** Драйвер `pg` сериализует `bigint` в string. Тип `Id` в `shared/types/api.ts` это фиксирует. Касается всех модулей без исключения.
 
 **Три формата ответа сосуществуют.** Пока не выполнен Task 16:
 - `{ ok: true, ... }` — новые эндпоинты (`/auth/*`, `/lang/*`)
