@@ -33,8 +33,8 @@ export function Input({ label, error, className = '', ...rest }: InputProps) {
   )
 }
 
-interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
-  label: string
+export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  label?: string
   children: ReactNode
 }
 
@@ -42,9 +42,11 @@ export function Select({ label, className = '', children, ...rest }: SelectProps
   const id = useId()
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-fg">
-        {label}
-      </label>
+      {label && (
+        <label htmlFor={id} className="text-sm font-medium text-fg">
+          {label}
+        </label>
+      )}
       <select id={id} className={`${CONTROL} ${className}`} {...rest}>
         {children}
       </select>

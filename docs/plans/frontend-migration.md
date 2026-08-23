@@ -88,13 +88,13 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршрут и пункт меню
 
 ### Task 11: Модуль «Журнал» (jurnal) — ключевой
-- [ ] `features/jurnal/jurnalApi.ts` — 13 эндпоинтов из `routes/jurnal.js`
-- [ ] Каскад семестр → группа → неделя → день на `CascadeSelect`
-- [ ] Сетка оценок: редактируемые ячейки, отметка пропуска, комментарий
-- [ ] Пакетное сохранение через `/api/jurnal/save` — параллельные массивы, как ожидает `jurnal_save`
-- [ ] Отдельные виды: текущий контроль, практика, итоговый, экзамен, Р1/Р2 (`/tk`, `/praktika`, `/itog`, `/exam-students`, `/r1-students`, `/r2-students`)
-- [ ] Сверить с `unispace/src/views/ucheb/jurnal.hbs` (921 строка) — самая сложная клиентская логика
-- [ ] Маршрут и пункт меню
+- [x] `features/jurnal/jurnalApi.ts` — 13 эндпоинтов из `routes/jurnal.js`
+- [x] Каскад семестр → группа → неделя → день на `CascadeSelect`
+- [x] Сетка оценок: редактируемые ячейки, отметка пропуска, комментарий
+- [x] Пакетное сохранение через `/api/jurnal/save` — параллельные массивы, как ожидает `jurnal_save`
+- [x] Отдельные виды: текущий контроль, практика, итоговый, экзамен, Р1/Р2 (`/tk`, `/praktika`, `/itog`, `/exam-students`, `/r1-students`, `/r2-students`)
+- [x] Сверить с `unispace/src/views/ucheb/jurnal.hbs` (921 строка) — самая сложная клиентская логика
+- [x] Маршрут и пункт меню
 
 ### Task 12: Модуль «Внеплановое» (vneplanovoe)
 - [ ] `features/vneplanovoe/vneplanovoeApi.ts` — 10 эндпоинтов из `routes/vneplanovoe.js`

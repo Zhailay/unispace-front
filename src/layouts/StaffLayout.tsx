@@ -20,6 +20,7 @@ const NAV = [
   { to: '/staff/kalendar', end: false, labelKey: 'nav.kalendar' },
   { to: '/staff/plan', end: false, labelKey: 'nav.plan' },
   { to: '/staff/registraciya', end: false, labelKey: 'nav.registraciya' },
+  { to: '/staff/jurnal', end: false, labelKey: 'nav.jurnal' },
 ] as const
 
 export default function StaffLayout() {
