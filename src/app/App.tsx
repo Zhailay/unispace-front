@@ -23,7 +23,9 @@ import TestManagePage from '@/pages/staff/TestManagePage'
 import DepartmentsPage from '@/pages/staff/DepartmentsPage'
 import PositionsPage from '@/pages/staff/PositionsPage'
 import EmployeesPage from '@/pages/staff/EmployeesPage'
+import StaffProfilePage from '@/pages/staff/StaffProfilePage'
 import StudentDashboardPage from '@/pages/student/StudentDashboardPage'
+import StudentProfilePage from '@/pages/student/StudentProfilePage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import Spinner from '@/shared/ui/Spinner'
 import Toasts from '@/shared/ui/Toasts'
@@ -68,6 +70,7 @@ export default function App() {
             <Route path="/staff/departments" element={<DepartmentsPage />} />
             <Route path="/staff/positions" element={<PositionsPage />} />
             <Route path="/staff/employees" element={<EmployeesPage />} />
+            <Route path="/staff/profile" element={<StaffProfilePage />} />
           </Route>
         </Route>
 
@@ -75,6 +78,7 @@ export default function App() {
         <Route element={<RequireAuth userType="student" />}>
           <Route element={<StudentLayout />}>
             <Route path="/student" element={<StudentDashboardPage />} />
+            <Route path="/student/profile" element={<StudentProfilePage />} />
           </Route>
         </Route>
 

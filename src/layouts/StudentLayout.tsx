@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAppSelector } from '@/app/hooks'
 import { useT } from '@/shared/i18n/useT'
 import LangSwitcher from '@/shared/ui/LangSwitcher'
@@ -33,7 +33,9 @@ export default function StudentLayout() {
           ))}
         </nav>
 
-        <span className="ml-auto text-sm text-muted">{user?.fullName}</span>
+        <Link to="/student/profile" className="ml-auto text-sm text-muted hover:text-fg transition-colors">
+          {user?.fullName}
+        </Link>
         <LangSwitcher />
         <LogoutButton />
       </header>

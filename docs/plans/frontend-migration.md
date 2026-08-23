@@ -118,10 +118,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршруты и пункты меню
 
 ### Task 15: Профили и дашборды
-- [ ] `pages/staff/StaffProfilePage.tsx` и `pages/student/StudentProfilePage.tsx` со сменой пароля через `/api/staff` и `/api/student`
-- [ ] Наполнить `StaffDashboardPage` данными из `/api/dashboard` (`dashboard/staff.hbs`, 315 строк)
-- [ ] Наполнить `StudentDashboardPage` данными из `/api/dashboard` (`dashboard/student.hbs`, 497 строк)
-- [ ] Проверить, что смена пароля разлогинивает и возвращает на `/login`
+- [x] `pages/staff/StaffProfilePage.tsx` и `pages/student/StudentProfilePage.tsx` со сменой пароля через `/api/staff` и `/api/student`
+- [x] Наполнить `StaffDashboardPage` данными из `/api/dashboard` (`dashboard/staff.hbs`, 315 строк)
+- [x] Наполнить `StudentDashboardPage` данными из `/api/dashboard` (`dashboard/student.hbs`, 497 строк)
+- [x] Проверить, что смена пароля разлогинивает и возвращает на `/login`
 
 ### Task 16: Чистка бэкенда после переноса
 - [ ] Найти контроллеры, где не осталось вызовов `res.render`/`res.redirect`

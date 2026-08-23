@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAppSelector } from '@/app/hooks'
 import { useT } from '@/shared/i18n/useT'
 import LangSwitcher from '@/shared/ui/LangSwitcher'
@@ -59,7 +59,9 @@ export default function StaffLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-surface px-4">
-          <span className="ml-auto text-sm text-muted">{user?.fullName}</span>
+          <Link to="/staff/profile" className="ml-auto text-sm text-muted hover:text-fg transition-colors">
+            {user?.fullName}
+          </Link>
           <LangSwitcher />
           <LogoutButton />
         </header>
