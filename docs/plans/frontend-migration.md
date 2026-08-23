@@ -82,10 +82,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршрут и пункт меню
 
 ### Task 10: Модуль «Регистрация» (registraciya)
-- [ ] `features/registraciya/registraciyaApi.ts` — 8 эндпоинтов из `routes/registraciya.js`
-- [ ] `pages/staff/RegistraciyaPage.tsx` — привязка студентов к плану
-- [ ] Сверить с `unispace/src/views/ucheb/registraciya.hbs` (404 строки)
-- [ ] Маршрут и пункт меню
+- [x] `features/registraciya/registraciyaApi.ts` — 8 эндпоинтов из `routes/registraciya.js`
+- [x] `pages/staff/RegistraciyaPage.tsx` — привязка студентов к плану
+- [x] Сверить с `unispace/src/views/ucheb/registraciya.hbs` (404 строки)
+- [x] Маршрут и пункт меню
 
 ### Task 11: Модуль «Журнал» (jurnal) — ключевой
 - [ ] `features/jurnal/jurnalApi.ts` — 13 эндпоинтов из `routes/jurnal.js`
