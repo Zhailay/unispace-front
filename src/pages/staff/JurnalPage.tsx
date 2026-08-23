@@ -884,13 +884,11 @@ function GradeTable({ students, activeCols, isVneplan, gradeEdits, onEdit }: Gra
 
                   return (
                     <Fragment key={col.key}>
-                      <td className="px-1 py-1 text-center">
-                        {/* Hidden input for ps_id */}
-                      </td>
                       <td className="px-1 py-1">
                         <input
                           type="number"
                           min={0}
+                          max={100}
                           value={ball ?? ''}
                           onChange={(e) => onEdit(psId, 'ball', e.target.value ? Number(e.target.value) : null)}
                           className="w-12 rounded border border-border bg-bg px-1 py-0.5 text-center text-sm"

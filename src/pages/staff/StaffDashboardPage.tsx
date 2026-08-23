@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAppSelector } from '@/app/hooks'
 import { useT } from '@/shared/i18n/useT'
 import { useStaffDashboardQuery } from '@/features/dashboard/dashboardApi'
@@ -186,13 +187,13 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 
 function QuickActionButton({ label, href }: { label: string; href: string }) {
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       className="flex items-center justify-between rounded-card border border-border px-4 py-3 transition-colors hover:bg-bg"
     >
       <span className="font-medium">{label}</span>
       <span className="text-muted">&rarr;</span>
-    </a>
+    </Link>
   )
 }
 
