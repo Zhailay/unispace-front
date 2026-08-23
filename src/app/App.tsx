@@ -9,6 +9,9 @@ import SpecialtiesPage from '@/pages/staff/SpecialtiesPage'
 import GruppaOpPage from '@/pages/staff/GruppaOpPage'
 import GruppaPage from '@/pages/staff/GruppaPage'
 import StudentsPage from '@/pages/staff/StudentsPage'
+import DisciplinaPage from '@/pages/staff/DisciplinaPage'
+import ModulNamePage from '@/pages/staff/ModulNamePage'
+import ObshNamePage from '@/pages/staff/ObshNamePage'
 import StudentDashboardPage from '@/pages/student/StudentDashboardPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import Spinner from '@/shared/ui/Spinner'
@@ -40,6 +43,9 @@ export default function App() {
             <Route path="/staff/gruppa-op" element={<GruppaOpPage />} />
             <Route path="/staff/gruppa" element={<GruppaPage />} />
             <Route path="/staff/students" element={<StudentsPage />} />
+            <Route path="/staff/disciplina" element={<DisciplinaPage />} />
+            <Route path="/staff/modul-name" element={<ModulNamePage />} />
+            <Route path="/staff/obsh-name" element={<ObshNamePage />} />
           </Route>
         </Route>
 

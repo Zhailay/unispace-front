@@ -14,6 +14,9 @@ const NAV = [
   { to: '/staff/specialties', end: false, labelKey: 'nav.specialties' },
   { to: '/staff/gruppa', end: false, labelKey: 'nav.gruppa' },
   { to: '/staff/students', end: false, labelKey: 'nav.ucheb_students' },
+  { to: '/staff/disciplina', end: false, labelKey: 'nav.disciplina' },
+  { to: '/staff/modul-name', end: false, labelKey: 'nav.modul_name' },
+  { to: '/staff/obsh-name', end: false, labelKey: 'nav.obsh_name' },
 ] as const
 
 export default function StaffLayout() {

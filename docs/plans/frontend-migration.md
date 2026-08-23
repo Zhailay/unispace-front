@@ -64,10 +64,10 @@ node scripts/api-fields.mjs /<путь эндпоинта>
 - [x] Маршрут и пункт меню
 
 ### Task 7: Модули «Дисциплины», «Модули», «Общие названия»
-- [ ] `features/disciplina/disciplinaApi.ts` + `pages/staff/DisciplinaPage.tsx` (`disciplina.hbs`, 597 строк)
-- [ ] `features/modulName/modulNameApi.ts` + `pages/staff/ModulNamePage.tsx` (`modul_name.hbs`, 455 строк)
-- [ ] `features/obshName/obshNameApi.ts` + `pages/staff/ObshNamePage.tsx` (`obsh_name.hbs`, 421 строка)
-- [ ] Маршруты и пункты меню для всех трёх
+- [x] `features/disciplina/disciplinaApi.ts` + `pages/staff/DisciplinaPage.tsx` (`disciplina.hbs`, 597 строк)
+- [x] `features/modulName/modulNameApi.ts` + `pages/staff/ModulNamePage.tsx` (`modul_name.hbs`, 455 строк)
+- [x] `features/obshName/obshNameApi.ts` + `pages/staff/ObshNamePage.tsx` (`obsh_name.hbs`, 421 строка)
+- [x] Маршруты и пункты меню для всех трёх
 
 ### Task 8: Модуль «Календарь» (kalendar)
 - [ ] `features/kalendar/kalendarApi.ts` — эндпоинты из `routes/kalendar.js`

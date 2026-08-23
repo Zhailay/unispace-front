@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes, type SelectHTMLAttributes, type ReactNode } from 'react'
+import { useId, type InputHTMLAttributes, type SelectHTMLAttributes, type TextareaHTMLAttributes, type ReactNode } from 'react'
 
 const CONTROL =
   `w-full rounded-card border border-border bg-surface px-3 py-2 text-sm text-fg
@@ -48,6 +48,34 @@ export function Select({ label, className = '', children, ...rest }: SelectProps
       <select id={id} className={`${CONTROL} ${className}`} {...rest}>
         {children}
       </select>
+    </div>
+  )
+}
+
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  label: string
+  error?: string
+}
+
+export function Textarea({ label, error, className = '', ...rest }: TextareaProps) {
+  const id = useId()
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium text-fg">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={`${CONTROL} ${error ? 'border-danger' : ''} ${className}`}
+        {...rest}
+      />
+      {error && (
+        <p id={`${id}-error`} className="text-sm text-danger">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
