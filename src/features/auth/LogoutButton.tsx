@@ -15,8 +15,15 @@ export default function LogoutButton() {
   }
 
   return (
-    <Button variant="secondary" loading={isLoading} onClick={handleClick}>
-      {t('common.logout')}
+    <Button
+      variant="ghost"
+      size="sm"
+      icon="logout"
+      loading={isLoading}
+      onClick={handleClick}
+      title={t('common.logout')}
+    >
+      <span className="hidden sm:inline">{t('common.logout')}</span>
     </Button>
   )
 }

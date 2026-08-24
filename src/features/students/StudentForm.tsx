@@ -203,19 +203,35 @@ export default function StudentForm({
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'student-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      size="lg"
       title={isEdit ? t('ucheb_students.change_student') : t('ucheb_students.add_student')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('ucheb_students.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('ucheb_students.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label={t('ucheb_students.iin')}
             value={iin}
             onChange={(e) => setIin(e.target.value)}
             maxLength={12}
+            className="tabular"
             required
           />
           <Input
@@ -350,15 +366,6 @@ export default function StudentForm({
             <option value="1">{t('ucheb_students.active')}</option>
             <option value="0">{t('ucheb_students.inactive')}</option>
           </Select>
-        </div>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('ucheb_students.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('ucheb_students.save_but')}
-          </Button>
         </div>
       </form>
     </Modal>

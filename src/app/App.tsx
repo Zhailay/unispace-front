@@ -37,8 +37,8 @@ export default function App() {
 
   if (!initialized) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <Spinner />
+      <div className="flex h-full items-center justify-center bg-bg">
+        <Spinner className="size-7" />
       </div>
     )
   }

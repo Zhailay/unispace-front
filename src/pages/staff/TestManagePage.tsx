@@ -13,13 +13,21 @@ import {
 import { useT } from '@/shared/i18n/useT'
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue'
 import Button from '@/shared/ui/Button'
+import Badge from '@/shared/ui/Badge'
+import Icon from '@/shared/ui/Icon'
 import Spinner from '@/shared/ui/Spinner'
+import EmptyState from '@/shared/ui/EmptyState'
+import PageHeader from '@/shared/ui/PageHeader'
 import Pagination from '@/shared/ui/Pagination'
+import { SearchInput } from '@/shared/ui/Field'
 import type { Id } from '@/shared/types/api'
 
 type FilterStatus = 'all' | 'active' | 'disabled'
 
 const PAGE_SIZE = 25
+
+// Рамка активного редактирования — одинакова у вопроса и у ответа.
+const EDITABLE = 'rounded-control border-2 border-primary bg-surface p-2 outline-none'
 
 /**
  * TestManagePage: Manage questions for an uploaded test.
@@ -73,10 +81,10 @@ export default function TestManagePage() {
   const totalPages = data?.totalPages ?? 1
 
   // Filter buttons
-  const filterButtons: { status: FilterStatus; label: string; variant: 'secondary' | 'success' | 'danger' }[] = [
-    { status: 'all', label: t('test_upload.filter_all'), variant: 'secondary' },
-    { status: 'active', label: t('test_upload.question_active'), variant: 'success' },
-    { status: 'disabled', label: t('test_upload.question_inactive'), variant: 'danger' },
+  const filterButtons: { status: FilterStatus; label: string }[] = [
+    { status: 'all', label: t('test_upload.filter_all') },
+    { status: 'active', label: t('test_upload.question_active') },
+    { status: 'disabled', label: t('test_upload.question_inactive') },
   ]
 
   // Toggle question
@@ -245,67 +253,82 @@ export default function TestManagePage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">
-          {t('test_upload.manage')} <span className="text-muted">#{testId}</span>
-        </h1>
-        <Button variant="secondary" onClick={() => navigate('/staff/test-upload')}>
-          {t('common.back')}
-        </Button>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('test_upload.manage')}
+        description={`#${testId}`}
+        busy={isFetching}
+        actions={
+          <Button variant="secondary" icon="chevronLeft" onClick={() => navigate('/staff/test-upload')}>
+            {t('common.back')}
+          </Button>
+        }
+      />
+
+      {/* Плитки KPI: всего вопросов / активных / отключённых */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+          <p className="tabular text-2xl font-semibold">
+            {data?.filteredTotal !== data?.total && (
+              <span className="text-muted">{data?.filteredTotal} / </span>
+            )}
+            {data?.total ?? 0}
+          </p>
+          <p className="text-sm text-muted">{t('common.total')}</p>
+        </div>
+        <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+          <p className="tabular text-2xl font-semibold text-success">{data?.totalActive ?? 0}</p>
+          <p className="text-sm text-muted">{t('test_upload.question_active')}</p>
+        </div>
+        <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+          <p className="tabular text-2xl font-semibold text-danger">{data?.totalDisabled ?? 0}</p>
+          <p className="text-sm text-muted">{t('test_upload.question_inactive')}</p>
+        </div>
       </div>
 
-      {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface px-4 py-2">
-        {/* Stats */}
-        <span className="text-sm text-muted">
-          {data?.filteredTotal !== data?.total && `${data?.filteredTotal} / `}
-          {data?.total} | {t('test_upload.question_active')}: {data?.totalActive} | {t('test_upload.question_inactive')}: {data?.totalDisabled}
-        </span>
-
-        {/* Filter buttons */}
+      {/* Тулбар: фильтр по статусу и поиск */}
+      <div className="flex flex-wrap items-center gap-3">
         <div className="flex gap-1">
           {filterButtons.map((btn) => (
-            <button
+            <Button
               key={btn.status}
+              size="sm"
+              variant={filterStatus === btn.status ? 'primary' : 'secondary'}
               onClick={() => setFilterStatus(btn.status)}
-              className={`rounded px-3 py-1 text-sm transition-colors ${
-                filterStatus === btn.status
-                  ? btn.variant === 'success'
-                    ? 'bg-green-600 text-white'
-                    : btn.variant === 'danger'
-                      ? 'bg-red-600 text-white'
-                      : 'bg-primary text-primary-fg'
-                  : 'border border-border bg-bg hover:bg-surface'
-              }`}
             >
               {btn.label}
-            </button>
+            </Button>
           ))}
         </div>
 
-        {/* Search */}
-        <input
-          type="text"
-          placeholder={`${t('common.search')}...`}
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          className="ml-auto w-64 rounded border border-border bg-bg px-3 py-1 text-sm"
-        />
-      </div>
-
-      {/* Loading overlay */}
-      {isFetching && !isLoading && (
-        <div className="flex justify-center py-2">
-          <Spinner />
+        <div className="ml-auto w-full sm:w-64">
+          <SearchInput
+          clearLabel={t('common.clear_search')}
+            label={t('common.search')}
+            placeholder={t('common.search')}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onClear={() => setSearchInput('')}
+          />
         </div>
-      )}
+      </div>
 
       {/* Questions list */}
       <div className="flex flex-col gap-3">
         {questions.length === 0 ? (
-          <p className="py-8 text-center text-muted">{t('common.no_data')}</p>
+          <div className="rounded-card border border-border bg-surface shadow-card">
+            <EmptyState
+              title={searchQuery ? t('common.nothing_found') : t('common.no_data')}
+              description={searchQuery ? t('common.nothing_found_hint') : t('common.no_records_hint')}
+              action={
+                searchQuery ? (
+                  <Button variant="secondary" onClick={() => setSearchInput('')}>
+                    {t('ucheb_students.clear_search')}
+                  </Button>
+                ) : undefined
+              }
+            />
+          </div>
         ) : (
           questions.map((q, idx) => {
             const globalIndex = (page - 1) * PAGE_SIZE + idx + 1
@@ -315,28 +338,33 @@ export default function TestManagePage() {
             return (
               <div
                 key={q.test_question_id}
-                className={`rounded-lg border border-border bg-surface p-4 ${!isActive ? 'opacity-55' : ''}`}
+                className={`rounded-card border border-border bg-surface p-4 shadow-card ${!isActive ? 'opacity-55' : ''}`}
               >
                 {/* Header */}
-                <div className="mb-2 flex items-start justify-between">
+                <div className="mb-2 flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="rounded bg-muted/20 px-2 py-0.5 text-xs font-medium">#{globalIndex}</span>
-                    <button
+                    <span className="tabular rounded-control bg-surface-2 px-2 py-0.5 text-xs font-medium text-muted">
+                      #{globalIndex}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      icon="pencil"
                       onClick={() => startEditQuestion(q.test_question_id)}
-                      className="rounded p-1 text-primary hover:bg-bg"
                       title={t('common.edit')}
-                    >
-                      <PenIcon />
-                    </button>
+                      aria-label={t('common.edit')}
+                    />
                   </div>
-                  <label className="flex items-center gap-2">
+                  <label className="flex cursor-pointer items-center gap-2">
                     <input
                       type="checkbox"
                       checked={isActive}
                       onChange={() => handleToggleQuestion(q.test_question_id, q.test_question_status)}
-                      className="h-4 w-4"
+                      className="size-4 cursor-pointer accent-primary"
                     />
-                    <span className="text-xs text-muted">{isActive ? t('test_upload.question_active') : t('test_upload.question_inactive')}</span>
+                    <Badge tone={isActive ? 'success' : 'neutral'}>
+                      {isActive ? t('test_upload.question_active') : t('test_upload.question_inactive')}
+                    </Badge>
                   </label>
                 </div>
 
@@ -347,25 +375,23 @@ export default function TestManagePage() {
                   }}
                   contentEditable={isEditing}
                   onPaste={handlePaste}
-                  className={`question-content mb-3 font-medium ${isEditing ? 'rounded border-2 border-primary bg-white p-2 outline-none dark:bg-gray-900' : ''}`}
+                  className={`question-content mb-3 font-medium ${isEditing ? EDITABLE : ''}`}
                   dangerouslySetInnerHTML={{ __html: q.test_question_value }}
                 />
 
                 {/* Question edit actions */}
                 {isEditing && (
                   <div className="mb-3 flex gap-2">
-                    <button
-                      onClick={() => saveQuestion(q.test_question_id)}
-                      className="rounded bg-primary px-2 py-1 text-xs text-primary-fg hover:opacity-90"
-                    >
+                    <Button size="sm" icon="check" onClick={() => saveQuestion(q.test_question_id)}>
                       {t('common.save')}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
                       onClick={() => cancelEditQuestion(q.test_question_id)}
-                      className="rounded border border-border bg-surface px-2 py-1 text-xs hover:bg-bg"
                     >
                       {t('common.cancel')}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -382,7 +408,6 @@ export default function TestManagePage() {
                       onToggle={() => handleToggleAnswer(a.test_answer_id, a.test_answer_status)}
                       onPaste={handlePaste}
                       answerRefs={answerRefs}
-                      t={t}
                     />
                   ))}
                 </div>
@@ -401,6 +426,8 @@ export default function TestManagePage() {
             setPage(p + 1)
             window.scrollTo(0, 0)
           }}
+          total={data?.filteredTotal}
+          pageSize={PAGE_SIZE}
         />
       )}
     </div>
@@ -419,7 +446,6 @@ function AnswerItem({
   onToggle,
   onPaste,
   answerRefs,
-  t,
 }: {
   answer: AnswerRow
   isEditing: boolean
@@ -429,24 +455,36 @@ function AnswerItem({
   onToggle: () => void
   onPaste: (e: React.ClipboardEvent<HTMLDivElement>) => void
   answerRefs: React.MutableRefObject<Map<Id, HTMLDivElement>>
-  t: (key: string) => string
 }) {
+  const t = useT()
   const isCorrect = answer.test_answer_status === 1
 
   return (
     <div
-      className={`relative rounded px-3 py-2 text-sm ${
-        isCorrect ? 'border-l-4 border-green-500 bg-green-50 font-medium dark:bg-green-900/20' : 'border-l-4 border-border bg-bg'
+      className={`relative rounded-control border-l-4 px-3 py-2 text-sm ${
+        isCorrect ? 'border-success bg-success-soft font-medium text-fg' : 'border-border bg-surface-2'
       }`}
     >
       {/* Controls */}
-      <div className="absolute right-2 top-2 flex items-center gap-1">
-        <button onClick={onEdit} className="rounded p-1 text-primary hover:bg-surface" title={t('common.edit')}>
-          <PenIcon />
-        </button>
-        <label className="flex items-center">
-          <input type="checkbox" checked={isCorrect} onChange={onToggle} className="h-4 w-4" />
+      <div className="absolute top-2 right-2 flex items-center gap-1">
+        <Button
+          size="sm"
+          variant="ghost"
+          icon="pencil"
+          onClick={onEdit}
+          title={t('common.edit')}
+          aria-label={t('common.edit')}
+        />
+        <label className="flex cursor-pointer items-center" title={t('test_upload.correct')}>
+          <input
+            type="checkbox"
+            checked={isCorrect}
+            onChange={onToggle}
+            aria-label={t('test_upload.correct')}
+            className="size-4 cursor-pointer accent-success"
+          />
         </label>
+        {isCorrect && <Icon name="check" className="size-3.5 text-success" />}
       </div>
 
       {/* Answer text */}
@@ -456,38 +494,21 @@ function AnswerItem({
         }}
         contentEditable={isEditing}
         onPaste={onPaste}
-        className={`pr-16 ${isEditing ? 'rounded border-2 border-primary bg-white p-2 outline-none dark:bg-gray-900' : ''}`}
+        className={`pr-24 ${isEditing ? EDITABLE : ''}`}
         dangerouslySetInnerHTML={{ __html: answer.test_answer_value }}
       />
 
       {/* Edit actions */}
       {isEditing && (
         <div className="mt-2 flex gap-2">
-          <button
-            onClick={onSave}
-            className="rounded bg-primary px-2 py-1 text-xs text-primary-fg hover:opacity-90"
-          >
+          <Button size="sm" icon="check" onClick={onSave}>
             {t('common.save')}
-          </button>
-          <button
-            onClick={onCancel}
-            className="rounded border border-border bg-surface px-2 py-1 text-xs hover:bg-bg"
-          >
+          </Button>
+          <Button size="sm" variant="secondary" onClick={onCancel}>
             {t('common.cancel')}
-          </button>
+          </Button>
         </div>
       )}
     </div>
-  )
-}
-
-/**
- * Pen icon component
- */
-function PenIcon() {
-  return (
-    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-    </svg>
   )
 }

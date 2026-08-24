@@ -19,16 +19,23 @@ export default function LangSwitcher() {
   }
 
   return (
-    <div className="flex gap-0.5 rounded-card border border-border p-0.5" role="group" aria-label="Язык">
+    <div
+      className="flex gap-0.5 rounded-control border border-border bg-surface p-0.5"
+      role="group"
+      aria-label="Язык"
+    >
       {SUPPORTED_LANGS.map((code) => (
         <button
           key={code}
           type="button"
           onClick={() => change(code)}
           aria-pressed={lang === code}
-          className={`rounded-md px-2 py-1 text-xs font-medium transition-colors ${
-            lang === code ? 'bg-primary text-primary-fg' : 'text-muted hover:text-fg'
-          }`}
+          className={`cursor-pointer rounded px-2 py-1 text-xs font-medium transition-colors
+            focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary ${
+              lang === code
+                ? 'bg-primary text-primary-fg'
+                : 'text-muted hover:bg-surface-2 hover:text-fg'
+            }`}
         >
           {LABELS[code]}
         </button>

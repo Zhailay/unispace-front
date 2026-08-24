@@ -12,10 +12,11 @@ import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import { SearchInput } from '@/shared/ui/Field'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
 import Pagination from '@/shared/ui/Pagination'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
 
 const PAGE_SIZE = 20
 
@@ -94,6 +95,7 @@ export default function SpecialtiesPage() {
     {
       key: 'spec_kod',
       header: t('specialties.spec_kod'),
+      className: 'tabular font-medium whitespace-nowrap',
       render: (row) => row.out_spec_kod,
     },
     {
@@ -114,48 +116,52 @@ export default function SpecialtiesPage() {
     {
       key: 'gruppa_op',
       header: t('specialties.gruppa_op'),
+      className: 'text-muted',
       render: (row) => row.out_gruppa_op_name ?? '',
     },
     {
       key: 'actions',
       header: t('specialties.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            loading={isDeleting && deleteId === row.out_spec_id}
-            onClick={() => handleDeleteClick(row.out_spec_id)}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
+        <RowActions
+          onEdit={() => handleEdit(row)}
+          onDelete={() => handleDeleteClick(row.out_spec_id)}
+          deleting={isDeleting && deleteId === row.out_spec_id}
+        />
       ),
     },
   ]
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('specialties.specialties')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        <span className="ml-auto text-sm text-muted">{total}</span>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('specialties.specialties')}
+        count={total}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('specialties.create')}
+          </Button>
+        }
+      />
 
-      <div className="flex items-end gap-3">
-        <Input
-          label={t('specialties.search')}
+      <div className="w-full sm:max-w-xs">
+        <SearchInput
+          clearLabel={t('common.clear_search')}
+          label={t('common.search')}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value)
             setPage(0)
           }}
-          placeholder={t('common.search')}
-          className="max-w-sm"
+          onClear={() => {
+            setSearch('')
+            setPage(0)
+          }}
+          placeholder={t('specialties.search')}
         />
-        <Button onClick={handleCreate}>{t('specialties.create')}</Button>
       </div>
 
       <DataTable
@@ -163,9 +169,34 @@ export default function SpecialtiesPage() {
         data={rows}
         rowKey={(row) => row.out_spec_id}
         loading={isFetching}
+        emptyMessage={search ? t('common.nothing_found') : t('common.no_data')}
+        emptyDescription={search ? t('common.nothing_found_hint') : t('common.no_records_hint')}
+        emptyAction={
+          search ? (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setSearch('')
+                setPage(0)
+              }}
+            >
+              {t('ucheb_students.clear_search')}
+            </Button>
+          ) : (
+            <Button icon="plus" onClick={handleCreate}>
+              {t('specialties.create')}
+            </Button>
+          )
+        }
       />
 
-      <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        lastPage={lastPage}
+        onPageChange={setPage}
+        total={total}
+        pageSize={PAGE_SIZE}
+      />
 
       <SpecialtyForm
         open={formOpen}
@@ -180,6 +211,7 @@ export default function SpecialtiesPage() {
         message={t('specialties.confirm_delete')}
         confirmText={t('specialties.yes')}
         cancelText={t('specialties.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

@@ -18,7 +18,12 @@ import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
 import { Select } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import PageHeader from '@/shared/ui/PageHeader'
+import EmptyState from '@/shared/ui/EmptyState'
+
+// Чекбокс живёт только внутри этой таблицы, отдельного примитива в
+// дизайн-системе нет — держим классы в одном месте, чтобы не разъезжались.
+const CHECKBOX = 'size-4 cursor-pointer rounded border-border accent-primary'
 
 /**
  * RegistraciyaPage: Student registration to disciplines (teacher assignment).
@@ -280,27 +285,50 @@ export default function RegistraciyaPage() {
 
   const allChecked = hasData && selectedStudents.size === tableRows.length
 
+  // Пока грузятся списки фильтров, показываем только шапку со спиннером.
   if (isPageLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner />
+      <div className="flex flex-col gap-5">
+        <PageHeader title={t('reg.menu_name')} busy />
       </div>
     )
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold">{t('reg.menu_name')}</h1>
+  // Колонки видов занятий: заголовок и поле ответа процедуры.
+  const vidColumns: { key: keyof RegistraciyaTableRow; label: string }[] = [
+    { key: 'l_fio', label: t('reg.vid_l') },
+    { key: 'pz_fio', label: t('reg.vid_pz') },
+    { key: 'lz_fio', label: t('reg.vid_lz') },
+    { key: 'srs_fio', label: t('reg.vid_srs') },
+    { key: 'srsp_fio', label: t('reg.vid_srsp') },
+    { key: 'fz_fio', label: t('reg.vid_fz') },
+    { key: 'lpz_fio', label: t('reg.vid_lpz') },
+  ]
 
-      {/* Filter Card */}
-      <div className="rounded-lg border border-border bg-surface p-4">
-        {/* Row 1: Specialty | Year | Form of Education | Group | Teacher */}
-        <div className="mb-4 flex flex-wrap items-end gap-3">
+  return (
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('reg.menu_name')}
+        count={hasData ? tableRows.length : undefined}
+        actions={
+          <>
+            <Button onClick={handleSave} loading={isSaving} disabled={!hasData}>
+              {t('reg.save')}
+            </Button>
+            <Button variant="danger" icon="trash" onClick={handleDeleteClick} loading={isDeleting} disabled={!hasData}>
+              {t('reg.delete')}
+            </Button>
+          </>
+        }
+      />
+
+      {/* Карточка фильтров: каскад «специальность, группа, дисциплина, вид занятия». */}
+      <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <Select
             label={t('reg.specialty')}
             value={filterSpec}
             onChange={(e) => handleSpecChange(e.target.value)}
-            className="w-56"
           >
             <option value="">{t('reg.select_spec')}</option>
             {specList.map((item) => (
@@ -314,7 +342,7 @@ export default function RegistraciyaPage() {
             label={t('reg.god')}
             value={filterGod}
             onChange={(e) => handleGodChange(e.target.value)}
-            className="w-28"
+            className="tabular"
           >
             <option value="">{t('reg.select_god')}</option>
             {godList.map((item) => (
@@ -328,7 +356,6 @@ export default function RegistraciyaPage() {
             label={t('reg.forma_obuch')}
             value={filterFormaObuch}
             onChange={(e) => handleFormaObuchChange(e.target.value)}
-            className="w-36"
           >
             <option value="">{t('reg.select_forma_obuch')}</option>
             {formaObuchList.map((item) => (
@@ -342,7 +369,6 @@ export default function RegistraciyaPage() {
             label={t('reg.gruppa')}
             value={filterGruppa}
             onChange={(e) => handleGruppaChange(e.target.value)}
-            className="w-36"
             disabled={!canLoadGruppa || gruppaList.length === 0}
           >
             <option value="">{t('reg.select_gruppa')}</option>
@@ -357,7 +383,6 @@ export default function RegistraciyaPage() {
             label={t('reg.teacher')}
             value={filterTeacher}
             onChange={(e) => setFilterTeacher(e.target.value)}
-            className="w-56"
           >
             <option value="">{t('reg.select_teacher')}</option>
             {teacherList.map((item) => (
@@ -366,15 +391,12 @@ export default function RegistraciyaPage() {
               </option>
             ))}
           </Select>
-        </div>
 
-        {/* Row 2: Semester | Kurs | Discipline | Vid Zanyatiya | Buttons */}
-        <div className="flex flex-wrap items-end gap-3">
           <Select
             label={t('reg.semestr')}
             value={filterSemestr}
             onChange={(e) => handleSemestrChange(e.target.value)}
-            className="w-36"
+            className="tabular"
           >
             <option value="">{t('reg.select_semestr')}</option>
             {semestrList.map((item) => (
@@ -388,7 +410,7 @@ export default function RegistraciyaPage() {
             label={t('reg.kurs')}
             value={filterKurs}
             onChange={(e) => handleKursChange(e.target.value)}
-            className="w-24"
+            className="tabular"
           >
             <option value="">{t('reg.select_kurs')}</option>
             {kursList.map((item) => (
@@ -402,7 +424,6 @@ export default function RegistraciyaPage() {
             label={t('reg.disciplina')}
             value={filterDisciplina}
             onChange={(e) => handleDisciplinaChange(e.target.value)}
-            className="w-64"
             disabled={!canLoadDisciplina || disciplinaList.length === 0}
           >
             <option value="">{t('reg.select_disciplina')}</option>
@@ -417,7 +438,6 @@ export default function RegistraciyaPage() {
             label={t('reg.vid_zanyatiya')}
             value={filterVidZanyatiya}
             onChange={(e) => handleVidZanyatiyaChange(e.target.value)}
-            className="w-44"
             disabled={!canLoadVidZanyatiya || vidZanyatiyaList.length === 0}
           >
             <option value="">{t('reg.select_vid')}</option>
@@ -427,85 +447,92 @@ export default function RegistraciyaPage() {
               </option>
             ))}
           </Select>
-
-          <div className="flex items-end gap-2 pb-0.5">
-            <Button variant="secondary" onClick={handleDeselectAll} disabled={!hasData}>
-              {t('reg.deselect_all')}
-            </Button>
-            <Button variant="secondary" onClick={handleSelectAll} disabled={!hasData}>
-              {t('reg.select_all')}
-            </Button>
-            <Button onClick={handleSave} loading={isSaving} disabled={!hasData}>
-              {t('reg.save')}
-            </Button>
-            <Button variant="danger" onClick={handleDeleteClick} loading={isDeleting} disabled={!hasData}>
-              {t('reg.delete')}
-            </Button>
-          </div>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-lg border border-border">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b border-border bg-surface">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button size="sm" variant="secondary" onClick={handleDeselectAll} disabled={!hasData}>
+          {t('reg.deselect_all')}
+        </Button>
+        <Button size="sm" variant="secondary" icon="check" onClick={handleSelectAll} disabled={!hasData}>
+          {t('reg.select_all')}
+        </Button>
+      </div>
+
+      {!hasData ? (
+        <div className="rounded-card border border-border bg-surface shadow-card">
+          <EmptyState icon="search" title={t('reg.select_filter_prompt')} />
+        </div>
+      ) : (
+        // Таблица широкая (7 видов занятий) — скроллим её саму, а не страницу.
+        <div className="table-scroll rounded-card border border-border bg-surface shadow-card">
+          <table className="w-full border-collapse text-sm">
+            <thead className="sticky top-0 z-10 bg-surface-2 text-muted">
               <tr>
-                <th className="w-11 px-2 py-2 text-center">
+                <th scope="col" className="w-px border-b border-border px-4 py-2.5 text-center">
                   <input
                     type="checkbox"
-                    className="size-4 cursor-pointer rounded border-border accent-primary"
+                    className={CHECKBOX}
                     checked={allChecked}
                     onChange={(e) => handleCheckAll(e.target.checked)}
                     disabled={!hasData}
+                    aria-label={t('reg.select_all')}
                   />
                 </th>
-                <th className="px-3 py-2 text-left text-sm font-medium">{t('reg.num')}</th>
-                <th className="px-3 py-2 text-left text-sm font-medium">{t('reg.fio')}</th>
-                <th className="px-3 py-2 text-center text-sm font-medium">{t('reg.vid_l')}</th>
-                <th className="px-3 py-2 text-center text-sm font-medium">{t('reg.vid_pz')}</th>
-                <th className="px-3 py-2 text-center text-sm font-medium">{t('reg.vid_lz')}</th>
-                <th className="px-3 py-2 text-center text-sm font-medium">{t('reg.vid_srs')}</th>
-                <th className="px-3 py-2 text-center text-sm font-medium">{t('reg.vid_srsp')}</th>
-                <th className="px-3 py-2 text-center text-sm font-medium">{t('reg.vid_fz')}</th>
-                <th className="px-3 py-2 text-center text-sm font-medium">{t('reg.vid_lpz')}</th>
+                <th
+                  scope="col"
+                  className="w-px border-b border-border px-4 py-2.5 text-left text-xs
+                    font-semibold tracking-wide uppercase whitespace-nowrap"
+                >
+                  {t('reg.num')}
+                </th>
+                <th
+                  scope="col"
+                  className="border-b border-border px-4 py-2.5 text-left text-xs
+                    font-semibold tracking-wide uppercase whitespace-nowrap"
+                >
+                  {t('reg.fio')}
+                </th>
+                {vidColumns.map((col) => (
+                  <th
+                    key={col.key}
+                    scope="col"
+                    className="border-b border-border px-4 py-2.5 text-center text-xs
+                      font-semibold tracking-wide uppercase whitespace-nowrap"
+                  >
+                    {col.label}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {!hasData ? (
-                <tr>
-                  <td colSpan={10} className="py-12 text-center text-muted">
-                    <p className="text-3xl">🔍</p>
-                    <p className="mt-2">{t('reg.select_filter_prompt')}</p>
+              {tableRows.map((row, index) => (
+                <tr
+                  key={row.student_id}
+                  className="border-b border-border transition-colors last:border-0 hover:bg-surface-2"
+                >
+                  <td className="px-4 py-2.5 text-center align-middle">
+                    <input
+                      type="checkbox"
+                      className={CHECKBOX}
+                      checked={selectedStudents.has(row.student_id)}
+                      onChange={(e) => handleCheckStudent(row.student_id, e.target.checked)}
+                      aria-label={row.student_fio}
+                    />
                   </td>
-                </tr>
-              ) : (
-                tableRows.map((row, index) => (
-                  <tr key={row.student_id} className="border-t border-border hover:bg-bg">
-                    <td className="px-2 py-2 text-center">
-                      <input
-                        type="checkbox"
-                        className="size-4 cursor-pointer rounded border-border accent-primary"
-                        checked={selectedStudents.has(row.student_id)}
-                        onChange={(e) => handleCheckStudent(row.student_id, e.target.checked)}
-                      />
+                  <td className="tabular px-4 py-2.5 align-middle text-muted">{index + 1}</td>
+                  <td className="px-4 py-2.5 align-middle whitespace-nowrap">{row.student_fio}</td>
+                  {vidColumns.map((col) => (
+                    <td key={col.key} className="px-4 py-2.5 text-center align-middle">
+                      {row[col.key] ?? ''}
                     </td>
-                    <td className="px-3 py-2 text-sm">{index + 1}</td>
-                    <td className="px-3 py-2 text-sm">{row.student_fio}</td>
-                    <td className="px-3 py-2 text-center text-sm">{row.l_fio ?? ''}</td>
-                    <td className="px-3 py-2 text-center text-sm">{row.pz_fio ?? ''}</td>
-                    <td className="px-3 py-2 text-center text-sm">{row.lz_fio ?? ''}</td>
-                    <td className="px-3 py-2 text-center text-sm">{row.srs_fio ?? ''}</td>
-                    <td className="px-3 py-2 text-center text-sm">{row.srsp_fio ?? ''}</td>
-                    <td className="px-3 py-2 text-center text-sm">{row.fz_fio ?? ''}</td>
-                    <td className="px-3 py-2 text-center text-sm">{row.lpz_fio ?? ''}</td>
-                  </tr>
-                ))
-              )}
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
-      </div>
+      )}
 
       <ConfirmDialog
         open={deleteConfirmOpen}
@@ -513,6 +540,7 @@ export default function RegistraciyaPage() {
         message={t('reg.confirm_delete')}
         confirmText={t('reg.yes')}
         cancelText={t('reg.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

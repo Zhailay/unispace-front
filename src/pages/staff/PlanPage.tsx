@@ -13,8 +13,10 @@ import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
 import { Select } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
+import EmptyState from '@/shared/ui/EmptyState'
 
 /**
  * Plan (curriculum) page: filter by spec/forma_obuch/god/kurs, CRUD operations.
@@ -113,11 +115,13 @@ export default function PlanPage() {
     {
       key: 'kurs',
       header: t('plan.kurs'),
+      className: 'tabular',
       render: (row) => row.out_kurs_nomer ?? '',
     },
     {
       key: 'semestr',
       header: t('plan.semestr'),
+      className: 'tabular',
       render: (row) => row.out_semestr_nomer ?? '',
     },
     {
@@ -128,11 +132,13 @@ export default function PlanPage() {
     {
       key: 'disciplina',
       header: t('plan.disciplina'),
+      className: 'min-w-56',
       render: (row) => row.out_disciplina_name ?? '',
     },
     {
       key: 'kod',
       header: t('plan.kod_discipliny'),
+      className: 'tabular whitespace-nowrap',
       render: (row) => row.out_plan_kod ?? '',
     },
     {
@@ -148,11 +154,15 @@ export default function PlanPage() {
     {
       key: 'kredit',
       header: t('plan.kredit'),
+      align: 'right',
+      className: 'tabular',
       render: (row) => row.out_plan_kredit ?? '',
     },
     {
       key: 'chasy',
       header: t('plan.chasy'),
+      align: 'right',
+      className: 'tabular',
       render: (row) => row.out_chasy ?? '',
     },
     {
@@ -173,107 +183,108 @@ export default function PlanPage() {
     {
       key: 'rezultaty',
       header: t('plan.rezultaty_obucheniya'),
+      className: 'min-w-64',
       render: (row) => row.out_plan_ro ?? '',
     },
     {
       key: 'actions',
       header: t('plan.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            loading={isDeleting && deleteId === row.out_plan_id}
-            onClick={() => handleDeleteClick(row.out_plan_id)}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
+        <RowActions
+          onEdit={() => handleEdit(row)}
+          onDelete={() => handleDeleteClick(row.out_plan_id)}
+          deleting={isDeleting && deleteId === row.out_plan_id}
+        />
       ),
     },
   ]
 
+  // Пока грузятся списки фильтров, показываем только шапку со спиннером.
   if (isPageLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner />
+      <div className="flex flex-col gap-5">
+        <PageHeader title={t('plan.menu_name')} busy />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('plan.menu_name')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        {filtersSelected && <span className="ml-auto text-sm text-muted">{rows.length}</span>}
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('plan.menu_name')}
+        count={filtersSelected ? rows.length : undefined}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('plan.create')}
+          </Button>
+        }
+      />
 
-      <div className="flex flex-wrap items-end gap-3">
-        <Select
-          label={t('plan.specialty')}
-          value={filterSpec}
-          onChange={(e) => setFilterSpec(e.target.value)}
-          className="w-64"
-        >
-          <option value="">{t('plan.select_spec')}</option>
-          {specList.map((item) => (
-            <option key={item.spec_id} value={item.spec_id}>
-              {item.spec_name}
-            </option>
-          ))}
-        </Select>
+      {/* Карточка фильтров: без выбранного контингента список не загружается. */}
+      <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <Select
+            label={t('plan.specialty')}
+            value={filterSpec}
+            onChange={(e) => setFilterSpec(e.target.value)}
+          >
+            <option value="">{t('plan.select_spec')}</option>
+            {specList.map((item) => (
+              <option key={item.spec_id} value={item.spec_id}>
+                {item.spec_name}
+              </option>
+            ))}
+          </Select>
 
-        <Select
-          label={t('plan.forma_obuch')}
-          value={filterFormaObuch}
-          onChange={(e) => setFilterFormaObuch(e.target.value)}
-          className="w-64"
-        >
-          <option value="">{t('plan.select_forma_obuch')}</option>
-          {formaObuchList.map((item) => (
-            <option key={item.forma_obuch_id} value={item.forma_obuch_id}>
-              {item.forma_obuch_name}
-            </option>
-          ))}
-        </Select>
+          <Select
+            label={t('plan.forma_obuch')}
+            value={filterFormaObuch}
+            onChange={(e) => setFilterFormaObuch(e.target.value)}
+          >
+            <option value="">{t('plan.select_forma_obuch')}</option>
+            {formaObuchList.map((item) => (
+              <option key={item.forma_obuch_id} value={item.forma_obuch_id}>
+                {item.forma_obuch_name}
+              </option>
+            ))}
+          </Select>
 
-        <Select
-          label={t('plan.god')}
-          value={filterGod}
-          onChange={(e) => setFilterGod(e.target.value)}
-          className="w-44"
-        >
-          <option value="">{t('plan.select_god')}</option>
-          {godList.map((item) => (
-            <option key={item.god_id} value={item.god_id}>
-              {item.god_value}
-            </option>
-          ))}
-        </Select>
+          <Select
+            label={t('plan.god')}
+            value={filterGod}
+            onChange={(e) => setFilterGod(e.target.value)}
+            className="tabular"
+          >
+            <option value="">{t('plan.select_god')}</option>
+            {godList.map((item) => (
+              <option key={item.god_id} value={item.god_id}>
+                {item.god_value}
+              </option>
+            ))}
+          </Select>
 
-        <Select
-          label={t('plan.kurs')}
-          value={filterKurs}
-          onChange={(e) => setFilterKurs(e.target.value)}
-          className="w-40"
-        >
-          <option value="0">{t('plan.all_kurs')}</option>
-          {kursList.map((item) => (
-            <option key={item.kurs_id} value={item.kurs_id}>
-              {item.kurs_nomer}
-            </option>
-          ))}
-        </Select>
-
-        <Button onClick={handleCreate}>{t('plan.create')}</Button>
+          <Select
+            label={t('plan.kurs')}
+            value={filterKurs}
+            onChange={(e) => setFilterKurs(e.target.value)}
+            className="tabular"
+          >
+            <option value="0">{t('plan.all_kurs')}</option>
+            {kursList.map((item) => (
+              <option key={item.kurs_id} value={item.kurs_id}>
+                {item.kurs_nomer}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       {!filtersSelected ? (
-        <div className="flex flex-col items-center justify-center py-12 text-muted">
-          <p>{t('plan.select_filter_prompt')}</p>
+        <div className="rounded-card border border-border bg-surface shadow-card">
+          <EmptyState icon="search" title={t('plan.select_filter_prompt')} />
         </div>
       ) : (
         <DataTable
@@ -282,6 +293,12 @@ export default function PlanPage() {
           rowKey={(row) => row.out_plan_id}
           loading={isFetching}
           emptyMessage={t('plan.no_records')}
+          emptyDescription={t('common.no_records_hint')}
+          emptyAction={
+            <Button icon="plus" onClick={handleCreate}>
+              {t('plan.create')}
+            </Button>
+          }
         />
       )}
 
@@ -307,6 +324,7 @@ export default function PlanPage() {
         message={t('plan.confirm_delete')}
         confirmText={t('plan.yes')}
         cancelText={t('plan.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

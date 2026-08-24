@@ -3,6 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Tanym — образовательная платформа" />
+    <!-- Подсказка браузеру: системные контролы (скроллбары, автозаполнение)
+         должны следовать теме, иначе на тёмном фоне они остаются белыми. -->
+    <meta name="color-scheme" content="light dark" />
+    <!-- Шрифты грузятся здесь, а не через @import в CSS: Tailwind v4
+         разворачивает `@import 'tailwindcss'` на месте, и @import ниже
+         оказывается в середине файла — PostCSS такое отклоняет.
+         display=swap: если Google Fonts недоступен (интранет), текст сразу
+         рисуется системным шрифтом из фолбэка, а не висит невидимым. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap"
+    />
     <title>Tanym</title>
   </head>
   <body>

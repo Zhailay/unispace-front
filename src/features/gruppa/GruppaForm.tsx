@@ -127,33 +127,33 @@ export default function GruppaForm({
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'gruppa-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
       title={isEdit ? t('ucheb_groups.change_group') : t('ucheb_groups.create_group')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('ucheb_groups.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('ucheb_groups.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label={t('ucheb_groups.group_name')}
           value={gruppaName}
           onChange={(e) => setGruppaName(e.target.value)}
           required
         />
-
-        <Select
-          label={t('ucheb_groups.language_of_instruction')}
-          value={idOtdelenie}
-          onChange={(e) => setIdOtdelenie(e.target.value)}
-          required
-        >
-          <option value="">{t('ucheb_groups.select_language_of_instruction')}</option>
-          {otdelenieList.map((item) => (
-            <option key={item.otdelenie_id} value={item.otdelenie_id}>
-              {item.otdelenie_name}
-            </option>
-          ))}
-        </Select>
 
         <Select
           label={t('ucheb_groups.qualification')}
@@ -169,19 +169,35 @@ export default function GruppaForm({
           ))}
         </Select>
 
-        <Select
-          label={t('ucheb_groups.level_of_education')}
-          value={idFormaObuch}
-          onChange={(e) => setIdFormaObuch(e.target.value)}
-          required
-        >
-          <option value="">{t('ucheb_groups.select_level_of_education')}</option>
-          {formaObuchList.map((item) => (
-            <option key={item.forma_obuch_id} value={item.forma_obuch_id}>
-              {item.forma_obuch_name}
-            </option>
-          ))}
-        </Select>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Select
+            label={t('ucheb_groups.language_of_instruction')}
+            value={idOtdelenie}
+            onChange={(e) => setIdOtdelenie(e.target.value)}
+            required
+          >
+            <option value="">{t('ucheb_groups.select_language_of_instruction')}</option>
+            {otdelenieList.map((item) => (
+              <option key={item.otdelenie_id} value={item.otdelenie_id}>
+                {item.otdelenie_name}
+              </option>
+            ))}
+          </Select>
+
+          <Select
+            label={t('ucheb_groups.level_of_education')}
+            value={idFormaObuch}
+            onChange={(e) => setIdFormaObuch(e.target.value)}
+            required
+          >
+            <option value="">{t('ucheb_groups.select_level_of_education')}</option>
+            {formaObuchList.map((item) => (
+              <option key={item.forma_obuch_id} value={item.forma_obuch_id}>
+                {item.forma_obuch_name}
+              </option>
+            ))}
+          </Select>
+        </div>
 
         <Select
           label={t('ucheb_groups.year')}
@@ -196,15 +212,6 @@ export default function GruppaForm({
             </option>
           ))}
         </Select>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('ucheb_groups.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('ucheb_groups.save_but')}
-          </Button>
-        </div>
       </form>
     </Modal>
   )

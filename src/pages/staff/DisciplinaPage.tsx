@@ -12,12 +12,25 @@ import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
-import { Input, Select } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import { SearchInput, Select } from '@/shared/ui/Field'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
 import Pagination from '@/shared/ui/Pagination'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
 
 const PAGE_SIZE = 10
+
+// Часы по видам занятий — узкие числовые колонки с одинаковым оформлением.
+const HOUR_COLUMNS = [
+  { key: 'lk', labelKey: 'disciplina.lk', field: 'out_disciplina_lk' },
+  { key: 'pz', labelKey: 'disciplina.pz', field: 'out_disciplina_pz' },
+  { key: 'lz', labelKey: 'disciplina.lz', field: 'out_disciplina_lz' },
+  { key: 'srs', labelKey: 'disciplina.srs', field: 'out_disciplina_srs' },
+  { key: 'srsp', labelKey: 'disciplina.srsp', field: 'out_disciplina_srsp' },
+  { key: 'pp', labelKey: 'disciplina.pp', field: 'out_disciplina_pp' },
+  { key: 'lpz', labelKey: 'disciplina.lpz', field: 'out_disciplina_lpz' },
+  { key: 'fz', labelKey: 'disciplina.fz', field: 'out_disciplina_fz' },
+] as const
 
 export default function DisciplinaPage() {
   const t = useT()
@@ -46,6 +59,9 @@ export default function DisciplinaPage() {
   const total = data?.totalCount ?? 0
   const lastPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1)
   const podrazdelenieList = pageData?.data?.podrazdelenie_list ?? []
+
+  // Пустое состояние по-разному объясняется при активных фильтрах и без них.
+  const hasFilters = Boolean(search || filterPodrazdelenie)
 
   function handleCreate() {
     setEditRow(null)
@@ -96,6 +112,7 @@ export default function DisciplinaPage() {
     {
       key: 'name_kz',
       header: t('disciplina.name_kz'),
+      className: 'font-medium',
       render: (row) => row.out_disciplina_kz,
     },
     {
@@ -111,80 +128,69 @@ export default function DisciplinaPage() {
     {
       key: 'kredit',
       header: t('disciplina.kredit'),
+      align: 'right',
+      className: 'tabular w-px',
       render: (row) => row.out_disciplina_kredit ?? '',
     },
     {
       key: 'dop_info',
       header: t('disciplina.dop_info'),
+      className: 'text-muted',
       render: (row) => row.out_disciplina_opisanie ?? '',
     },
-    {
-      key: 'lk',
-      header: t('disciplina.lk'),
-      render: (row) => row.out_disciplina_lk ?? '',
-    },
-    {
-      key: 'pz',
-      header: t('disciplina.pz'),
-      render: (row) => row.out_disciplina_pz ?? '',
-    },
-    {
-      key: 'lz',
-      header: t('disciplina.lz'),
-      render: (row) => row.out_disciplina_lz ?? '',
-    },
-    {
-      key: 'srs',
-      header: t('disciplina.srs'),
-      render: (row) => row.out_disciplina_srs ?? '',
-    },
-    {
-      key: 'srsp',
-      header: t('disciplina.srsp'),
-      render: (row) => row.out_disciplina_srsp ?? '',
-    },
-    {
-      key: 'pp',
-      header: t('disciplina.pp'),
-      render: (row) => row.out_disciplina_pp ?? '',
-    },
-    {
-      key: 'lpz',
-      header: t('disciplina.lpz'),
-      render: (row) => row.out_disciplina_lpz ?? '',
-    },
-    {
-      key: 'fz',
-      header: t('disciplina.fz'),
-      render: (row) => row.out_disciplina_fz ?? '',
-    },
+    ...HOUR_COLUMNS.map<Column<DisciplinaRow>>((col) => ({
+      key: col.key,
+      header: t(col.labelKey),
+      align: 'right' as const,
+      className: 'tabular w-px text-muted',
+      render: (row) => row[col.field] ?? '',
+    })),
     {
       key: 'actions',
       header: t('disciplina.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            loading={isDeleting && deleteId === row.out_disciplina_id}
-            onClick={() => handleDeleteClick(row.out_disciplina_id)}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
+        <RowActions
+          onEdit={() => handleEdit(row)}
+          onDelete={() => handleDeleteClick(row.out_disciplina_id)}
+          deleting={isDeleting && deleteId === row.out_disciplina_id}
+        />
       ),
     },
   ]
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('disciplina.menu_name')}</h1>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('disciplina.menu_name')}
+        count={total}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('disciplina.create')}
+          </Button>
+        }
+      />
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <SearchInput
+          clearLabel={t('common.clear_search')}
+          label={t('common.search')}
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value)
+            setPage(0)
+          }}
+          onClear={() => {
+            setSearch('')
+            setPage(0)
+          }}
+          placeholder={t('disciplina.search')}
+        />
+
         <Select
-          label=""
-          className="w-56"
+          aria-label={t('disciplina.podrazdelenie')}
           value={filterPodrazdelenie}
           onChange={(e) => {
             setFilterPodrazdelenie(e.target.value)
@@ -198,25 +204,12 @@ export default function DisciplinaPage() {
             </option>
           ))}
         </Select>
-        {isFetching && <Spinner className="size-4" />}
-        <span className="ml-auto text-sm text-muted">{total}</span>
-      </div>
 
-      <div className="flex items-end gap-3">
-        <Input
-          label={t('disciplina.search')}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(0)
-          }}
-          placeholder={t('common.search')}
-          className="max-w-sm"
-        />
-        <Button variant="secondary" onClick={handleClearSearch}>
-          {t('common.clear')}
-        </Button>
-        <Button onClick={handleCreate}>{t('disciplina.create')}</Button>
+        {hasFilters && (
+          <Button variant="secondary" icon="close" onClick={handleClearSearch}>
+            {t('ucheb_students.clear_search')}
+          </Button>
+        )}
       </div>
 
       <DataTable
@@ -224,9 +217,30 @@ export default function DisciplinaPage() {
         data={rows}
         rowKey={(row) => row.out_disciplina_id}
         loading={isFetching}
+        emptyMessage={hasFilters ? t('common.nothing_found') : t('common.no_data')}
+        emptyDescription={
+          hasFilters ? t('common.nothing_found_hint') : t('common.no_records_hint')
+        }
+        emptyAction={
+          hasFilters ? (
+            <Button variant="secondary" onClick={handleClearSearch}>
+              {t('ucheb_students.clear_search')}
+            </Button>
+          ) : (
+            <Button icon="plus" onClick={handleCreate}>
+              {t('disciplina.create')}
+            </Button>
+          )
+        }
       />
 
-      <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        lastPage={lastPage}
+        onPageChange={setPage}
+        total={total}
+        pageSize={PAGE_SIZE}
+      />
 
       <DisciplinaForm
         open={formOpen}
@@ -241,6 +255,7 @@ export default function DisciplinaPage() {
         message={t('disciplina.confirm_delete')}
         confirmText={t('disciplina.yes')}
         cancelText={t('disciplina.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

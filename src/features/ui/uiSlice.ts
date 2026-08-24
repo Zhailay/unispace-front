@@ -13,9 +13,19 @@ interface UiState {
   toasts: Toast[]
 }
 
+/**
+ * На узком экране сайдбар — это оверлей поверх контента, поэтому
+ * открытым по умолчанию он не должен быть: иначе приложение стартует
+ * с закрытой шторкой на весь экран.
+ */
+function defaultSidebarOpen(): boolean {
+  if (typeof window === 'undefined') return true
+  return window.innerWidth >= 1024
+}
+
 const initialState: UiState = {
   lang: getLang(),
-  sidebarOpen: true,
+  sidebarOpen: defaultSidebarOpen(),
   toasts: [],
 }
 

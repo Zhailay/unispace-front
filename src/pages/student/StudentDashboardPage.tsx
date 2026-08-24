@@ -1,7 +1,11 @@
 import { useAppSelector } from '@/app/hooks'
 import { useT } from '@/shared/i18n/useT'
 import { useStudentDashboardQuery } from '@/features/dashboard/dashboardApi'
-import Spinner from '@/shared/ui/Spinner'
+import type { TFunction } from '@/shared/i18n/i18nContext'
+import Badge from '@/shared/ui/Badge'
+import EmptyState from '@/shared/ui/EmptyState'
+import Skeleton from '@/shared/ui/Skeleton'
+import StatCard from '@/shared/ui/StatCard'
 
 export default function StudentDashboardPage() {
   const t = useT()
@@ -10,19 +14,11 @@ export default function StudentDashboardPage() {
   const { data: response, isLoading, error } = useStudentDashboardQuery()
   const dashData = response?.data
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Spinner />
-      </div>
-    )
-  }
+  if (isLoading) return <DashboardSkeleton />
 
   if (error) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-error">{t('error.loading_failed')}</p>
-      </div>
+      <EmptyState icon="alert" title={t('error.loading_failed')} description={t('common.error_connection')} />
     )
   }
 
@@ -30,124 +26,120 @@ export default function StudentDashboardPage() {
   const grades = dashData?.grades ?? []
   const assignments = dashData?.assignments ?? []
   const attendance = dashData?.attendance ?? 0
-  const today = dashData?.today ? new Date(dashData.today).toLocaleDateString() : new Date().toLocaleDateString()
+  const today = dashData?.today
+    ? new Date(dashData.today).toLocaleDateString()
+    : new Date().toLocaleDateString()
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Welcome Card */}
-      <div className="rounded-card bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-fg">
-        <h1 className="text-2xl font-bold">{t('dashboard.student_welcome', { name: user?.fullName ?? '' })}</h1>
-        <p className="mt-1 opacity-80">
-          <span className="mr-2 inline-block rounded bg-white/20 px-2 py-0.5 text-sm font-medium">
-            {user?.id}
+    <div className="flex flex-col gap-5">
+      <div className="rounded-card bg-primary p-6 text-primary-fg shadow-raised">
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
+          {t('dashboard.student_welcome', { name: user?.fullName ?? '' })}
+        </h1>
+        <p className="mt-2 flex flex-wrap items-center gap-2 text-sm opacity-90">
+          <span className="tabular rounded bg-white/20 px-2 py-0.5 font-medium">{user?.id}</span>
+          <span>
+            {t('dashboard.today_is')} {today}
           </span>
-          {t('dashboard.today_is')} {today}
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
-        <StatCard
-          label={t('dashboard.my_courses')}
-          value={courses.length}
-          color="bg-primary/10 text-primary"
-        />
-        <StatCard
-          label={t('dashboard.recent_grades')}
-          value={grades.length}
-          color="bg-success/10 text-success"
-        />
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <StatCard label={t('dashboard.my_courses')} value={courses.length} icon="book" tone="primary" />
+        <StatCard label={t('dashboard.recent_grades')} value={grades.length} icon="check" tone="success" />
         <StatCard
           label={t('dashboard.upcoming_assignments')}
           value={assignments.length}
-          color="bg-warning/10 text-warning"
+          icon="clipboard"
+          tone="warning"
         />
         <StatCard
           label={t('dashboard.attendance')}
           value={attendance}
           suffix="%"
-          color="bg-info/10 text-info"
+          icon="calendar"
+          tone="info"
         />
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid gap-6 xl:grid-cols-3">
-        {/* My Courses - takes 2 columns */}
-        <div className="rounded-card border border-border bg-surface p-6 xl:col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{t('dashboard.my_courses')}</h2>
-          </div>
+      <div className="grid gap-5 xl:grid-cols-3">
+        <Panel title={t('dashboard.my_courses')} className="xl:col-span-2">
           {courses.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               {courses.map((course) => (
                 <CourseCard key={course.id} course={course} t={t} />
               ))}
             </div>
           ) : (
-            <div className="py-8 text-center text-muted">
-              <p>{t('dashboard.no_courses')}</p>
-            </div>
+            <EmptyState icon="book" title={t('dashboard.no_courses')} />
           )}
-        </div>
+        </Panel>
 
-        {/* Recent Grades */}
-        <div className="rounded-card border border-border bg-surface p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{t('dashboard.recent_grades')}</h2>
-          </div>
+        <Panel title={t('dashboard.recent_grades')}>
           {grades.length > 0 ? (
-            <div className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-2">
               {grades.map((grade, idx) => (
-                <GradeItem key={idx} grade={grade} t={t} />
+                <li
+                  key={idx}
+                  className="flex items-center justify-between gap-3 rounded-control border border-border p-3"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{t(grade.title_key)}</p>
+                    <p className="truncate text-sm text-muted">{t(grade.course_name_key)}</p>
+                  </div>
+                  <span className="tabular shrink-0 rounded bg-primary-soft px-2.5 py-1 text-sm font-semibold text-primary">
+                    {grade.score}/{grade.max_score}
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
-            <div className="py-8 text-center text-muted">
-              <p>{t('dashboard.no_grades')}</p>
-            </div>
+            <EmptyState title={t('dashboard.no_grades')} />
           )}
-        </div>
+        </Panel>
       </div>
 
-      {/* Upcoming Assignments */}
-      <div className="rounded-card border border-border bg-surface p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t('dashboard.upcoming_assignments')}</h2>
-        </div>
+      <Panel title={t('dashboard.upcoming_assignments')}>
         {assignments.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border text-left text-sm text-muted">
-                  <th className="pb-2 font-medium">{t('assignment.title')}</th>
-                  <th className="hidden pb-2 font-medium md:table-cell">{t('course.name')}</th>
-                  <th className="pb-2 font-medium">{t('assignment.due_date')}</th>
-                  <th className="hidden pb-2 font-medium sm:table-cell">{t('assignment.status')}</th>
+          <div className="table-scroll">
+            <table className="w-full text-sm">
+              <thead className="text-muted">
+                <tr className="border-b border-border text-left">
+                  <th className="pb-2 text-xs font-semibold tracking-wide uppercase">
+                    {t('assignment.title')}
+                  </th>
+                  <th className="hidden pb-2 text-xs font-semibold tracking-wide uppercase md:table-cell">
+                    {t('course.name')}
+                  </th>
+                  <th className="pb-2 text-xs font-semibold tracking-wide uppercase">
+                    {t('assignment.due_date')}
+                  </th>
+                  <th className="hidden pb-2 text-xs font-semibold tracking-wide uppercase sm:table-cell">
+                    {t('assignment.status')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {assignments.map((assignment) => (
                   <tr key={assignment.id} className="border-b border-border last:border-0">
-                    <td className="py-3">
+                    <td className="py-2.5">
                       <span className="font-medium">{t(assignment.title_key)}</span>
-                      <span className="md:hidden block text-sm text-muted">{t(assignment.course_name_key)}</span>
+                      <span className="block text-sm text-muted md:hidden">
+                        {t(assignment.course_name_key)}
+                      </span>
                     </td>
-                    <td className="hidden py-3 text-muted md:table-cell">{t(assignment.course_name_key)}</td>
-                    <td className="py-3">
-                      <span className={assignment.is_urgent ? 'font-medium text-error' : ''}>
+                    <td className="hidden py-2.5 text-muted md:table-cell">
+                      {t(assignment.course_name_key)}
+                    </td>
+                    <td className="tabular py-2.5">
+                      <span className={assignment.is_urgent ? 'font-medium text-danger' : ''}>
                         {new Date(assignment.due_date).toLocaleDateString()}
                       </span>
                     </td>
-                    <td className="hidden py-3 sm:table-cell">
-                      {assignment.is_submitted ? (
-                        <span className="rounded bg-success/10 px-2 py-1 text-xs font-medium text-success">
-                          {t('assignment.submitted')}
-                        </span>
-                      ) : (
-                        <span className="rounded bg-warning/10 px-2 py-1 text-xs font-medium text-warning">
-                          {t('assignment.pending')}
-                        </span>
-                      )}
+                    <td className="hidden py-2.5 sm:table-cell">
+                      <Badge tone={assignment.is_submitted ? 'success' : 'warning'}>
+                        {assignment.is_submitted ? t('assignment.submitted') : t('assignment.pending')}
+                      </Badge>
                     </td>
                   </tr>
                 ))}
@@ -155,41 +147,27 @@ export default function StudentDashboardPage() {
             </table>
           </div>
         ) : (
-          <div className="py-8 text-center text-muted">
-            <p>{t('dashboard.no_assignments')}</p>
-          </div>
+          <EmptyState icon="clipboard" title={t('dashboard.no_assignments')} />
         )}
-      </div>
+      </Panel>
     </div>
   )
 }
 
-function StatCard({
-  label,
-  value,
-  suffix,
-  color,
+function Panel({
+  title,
+  className = '',
+  children,
 }: {
-  label: string
-  value: number
-  suffix?: string
-  color: string
+  title: string
+  className?: string
+  children: React.ReactNode
 }) {
   return (
-    <div className="rounded-card border border-border bg-surface p-4 transition-shadow hover:shadow-md">
-      <div className="flex items-center gap-3">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${color}`}>
-          <span className="text-lg font-bold">#</span>
-        </div>
-        <div>
-          <p className="text-2xl font-bold">
-            {value}
-            {suffix && <span className="text-base text-muted">{suffix}</span>}
-          </p>
-          <p className="text-sm text-muted">{label}</p>
-        </div>
-      </div>
-    </div>
+    <section className={`rounded-card border border-border bg-surface p-5 shadow-card ${className}`}>
+      <h2 className="mb-4 text-base font-semibold">{title}</h2>
+      {children}
+    </section>
   )
 }
 
@@ -197,45 +175,55 @@ function CourseCard({
   course,
   t,
 }: {
-  course: { id: string; code: string; name_key: string; credits: number; instructor: string; progress: number }
-  t: (key: string) => string
+  course: {
+    id: string
+    code: string
+    name_key: string
+    credits: number
+    instructor: string
+    progress: number
+  }
+  t: TFunction
 }) {
   return (
-    <div className="rounded-card border border-border p-4 transition-shadow hover:shadow-md">
-      <div className="mb-2 flex items-start justify-between">
-        <span className="rounded bg-muted/20 px-2 py-0.5 text-xs font-medium">{course.code}</span>
-        <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+    <div className="rounded-control border border-border p-4 transition-colors hover:border-border-strong">
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <Badge>{course.code}</Badge>
+        <Badge tone="primary">
           {course.credits} {t('course.credits')}
-        </span>
+        </Badge>
       </div>
       <h3 className="mb-1 font-semibold">{t(course.name_key)}</h3>
       <p className="mb-3 text-sm text-muted">{course.instructor}</p>
       <div className="flex items-center gap-3">
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted/20">
+        <div
+          className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2"
+          role="progressbar"
+          aria-valuenow={course.progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div className="h-full rounded-full bg-primary" style={{ width: `${course.progress}%` }} />
         </div>
-        <span className="text-xs text-muted">{course.progress}%</span>
+        <span className="tabular text-xs text-muted">{course.progress}%</span>
       </div>
     </div>
   )
 }
 
-function GradeItem({
-  grade,
-  t,
-}: {
-  grade: { title_key: string; course_name_key: string; score: number; max_score: number }
-  t: (key: string) => string
-}) {
+function DashboardSkeleton() {
   return (
-    <div className="flex items-center justify-between rounded-card border border-border p-3">
-      <div className="flex-1">
-        <p className="font-medium">{t(grade.title_key)}</p>
-        <p className="text-sm text-muted">{t(grade.course_name_key)}</p>
+    <div className="flex flex-col gap-5">
+      <Skeleton className="h-24 w-full rounded-card" />
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-[4.5rem] w-full rounded-card" />
+        ))}
       </div>
-      <span className="rounded bg-primary px-2.5 py-1 text-sm font-medium text-primary-fg">
-        {grade.score}/{grade.max_score}
-      </span>
+      <div className="grid gap-5 xl:grid-cols-3">
+        <Skeleton className="h-64 w-full rounded-card xl:col-span-2" />
+        <Skeleton className="h-64 w-full rounded-card" />
+      </div>
     </div>
   )
 }

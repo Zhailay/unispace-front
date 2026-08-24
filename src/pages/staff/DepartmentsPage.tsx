@@ -13,9 +13,40 @@ import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import { getLang } from '@/shared/i18n/lang'
+import Badge from '@/shared/ui/Badge'
 import Button from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import EmptyState from '@/shared/ui/EmptyState'
+import { SearchInput } from '@/shared/ui/Field'
+import Icon from '@/shared/ui/Icon'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
+import Skeleton from '@/shared/ui/Skeleton'
+
+// Ширины колонок держим в одном месте: шапка и строки дерева должны
+// совпадать пиксель в пиксель, иначе колонки разъезжаются на вложенности.
+const COL_NAME = 'flex-[2] min-w-0'
+const COL_TYPE = 'flex-1 min-w-0'
+const COL_ACTIVE = 'w-16 shrink-0'
+const COL_NOMER = 'w-14 shrink-0'
+const COL_ACTIONS = 'w-24 shrink-0'
+
+/** Шапка дерева — та же сетка колонок, что и у строк. */
+function TreeHeader() {
+  const t = useT()
+
+  return (
+    <div
+      className="flex border-b border-border bg-surface-2 text-xs font-semibold
+        tracking-wide text-muted uppercase"
+    >
+      <div className={`${COL_NAME} px-4 py-2.5`}>{t('kadr.name')}</div>
+      <div className={`${COL_TYPE} px-4 py-2.5`}>{t('kadr.type')}</div>
+      <div className={`${COL_ACTIVE} px-2 py-2.5 text-center`}>{t('kadr.active_short')}</div>
+      <div className={`${COL_NOMER} px-2 py-2.5 text-center`}>{t('kadr.order_number')}</div>
+      <div className={`${COL_ACTIONS} px-4 py-2.5 text-right`}>{t('common.actions')}</div>
+    </div>
+  )
+}
 
 interface TreeNodeProps {
   node: DepartmentRow & { children?: DepartmentRow[] }
@@ -36,45 +67,44 @@ function TreeNode({ node, depth, collapsed, onToggle, onEdit, onDelete, isDeleti
 
   return (
     <>
-      <div
-        className="flex items-center border border-t-0 border-border text-sm hover:bg-bg/50"
-        style={{ paddingLeft: depth * 20 + 8 }}
-      >
-        <div className="flex-[2] flex items-center gap-1 py-1.5 pr-2 min-w-0">
+      <div className="flex items-center border-b border-border transition-colors last:border-0 hover:bg-surface-2">
+        <div
+          className={`${COL_NAME} flex items-center gap-1 py-1 pr-2 pl-2 text-sm`}
+          // Отступ вложенности задаётся инлайном: уровней заранее не знаем,
+          // а Tailwind генерирует только те классы, что есть в исходниках.
+          style={{ paddingLeft: depth * 20 + 8 }}
+        >
           {hasChildren ? (
-            <button
-              type="button"
+            <Button
+              size="sm"
+              variant="ghost"
+              icon={isCollapsed ? 'chevronRight' : 'chevronDown'}
               onClick={() => onToggle(node.id)}
-              className="w-5 shrink-0 text-muted hover:text-fg"
-            >
-              {isCollapsed ? '▶' : '▼'}
-            </button>
+              aria-label={departmentName(node, lang)}
+              aria-expanded={!isCollapsed}
+            />
           ) : (
-            <span className="w-5 shrink-0" />
+            <span className="h-8 w-9 shrink-0" aria-hidden />
           )}
           <span className="truncate">{departmentName(node, lang)}</span>
         </div>
-        <div className="flex-1 text-center py-1.5 border-l border-border">
+        <div className={`${COL_TYPE} truncate px-4 py-1 text-sm text-muted`}>
           {node.vidName || ''}
         </div>
-        <div className="w-16 text-center py-1.5 border-l border-border">
-          {node.status ? '✓' : ''}
+        <div className={`${COL_ACTIVE} flex justify-center px-2 py-1`}>
+          {node.status && (
+            <Icon name="check" className="size-4 text-success" title={t('kadr.is_active')} />
+          )}
         </div>
-        <div className="w-12 text-center py-1.5 border-l border-border">
+        <div className={`${COL_NOMER} tabular px-2 py-1 text-center text-sm text-muted`}>
           {node.nomer ?? ''}
         </div>
-        <div className="w-40 flex justify-center gap-1 py-1.5 border-l border-border">
-          <Button variant="secondary" className="px-2 py-1 text-xs" onClick={() => onEdit(node)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            className="px-2 py-1 text-xs"
-            loading={isDeleting && deleteId === node.id}
-            onClick={() => onDelete(node.id)}
-          >
-            {t('common.delete')}
-          </Button>
+        <div className={`${COL_ACTIONS} px-2 py-1`}>
+          <RowActions
+            onEdit={() => onEdit(node)}
+            onDelete={() => onDelete(node.id)}
+            deleting={isDeleting && deleteId === node.id}
+          />
         </div>
       </div>
       {hasChildren && !isCollapsed && (
@@ -183,71 +213,89 @@ export default function DepartmentsPage() {
     setDeleteId(null)
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('nav.departments')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        <Button className="ml-auto" onClick={handleCreate}>
-          {t('common.create')}
-        </Button>
-      </div>
+  // Первая загрузка — скелетоны вместо спиннера на всю страницу.
+  const isInitialLoad = isFetching && !departments
+  const isEmpty = !isFetching && tree.roots.length === 0 && tree.orphans.length === 0
 
-      <div className="flex items-end gap-6">
-        <div className="text-sm">
-          {t('kadr.total')}: <b>{meta.total}</b>
-        </div>
-        <div className="text-sm">
-          {t('kadr.active')}: <b>{meta.active}</b>
-        </div>
-        <div className="max-w-sm">
-          <Input
-            label={t('nav.departments')}
+  return (
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('nav.departments')}
+        count={meta.total}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('common.create')}
+          </Button>
+        }
+      />
+
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="w-full sm:max-w-xs">
+          <SearchInput
+          clearLabel={t('common.clear_search')}
+            label={t('common.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onClear={() => setSearch('')}
             placeholder={t('common.search')}
           />
         </div>
+        <div className="flex items-center gap-2 text-sm text-muted">
+          {t('kadr.active')}
+          <Badge tone="success">{meta.active}</Badge>
+        </div>
       </div>
 
-      {/* Tree header */}
-      <div className="flex bg-surface-alt border border-border font-semibold text-sm text-center">
-        <div className="flex-[2] py-2 px-2">{t('kadr.name')}</div>
-        <div className="flex-1 py-2 border-l border-border">{t('kadr.type')}</div>
-        <div className="w-16 py-2 border-l border-border">{t('kadr.active_short')}</div>
-        <div className="w-12 py-2 border-l border-border">№</div>
-        <div className="w-40 py-2 border-l border-border">{t('common.actions')}</div>
-      </div>
-
-      {/* Tree content */}
-      <div className="border-t border-border">
-        {tree.roots.map((node) => (
-          <TreeNode
-            key={node.id}
-            node={node}
-            depth={0}
-            collapsed={collapsed}
-            onToggle={handleToggle}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-            isDeleting={isDeleting}
-            deleteId={deleteId}
-          />
-        ))}
-      </div>
-
-      {/* Orphans section */}
-      {tree.orphans.length > 0 && (
-        <>
-          <h3 className="text-lg font-semibold text-muted mt-4">{t('kadr.orphan_departments')}</h3>
-          <div className="flex bg-surface-alt border border-border font-semibold text-sm text-center">
-            <div className="flex-[2] py-2 px-2">{t('kadr.name')}</div>
-            <div className="flex-1 py-2 border-l border-border">{t('kadr.type')}</div>
-            <div className="w-16 py-2 border-l border-border">{t('kadr.active_short')}</div>
-            <div className="w-12 py-2 border-l border-border">№</div>
-            <div className="w-40 py-2 border-l border-border">{t('common.actions')}</div>
+      <div className="table-scroll rounded-card border border-border bg-surface shadow-card">
+        {isInitialLoad ? (
+          <div className="flex flex-col gap-3 p-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={`sk-${i}`} className="h-6 w-full" />
+            ))}
           </div>
-          <div className="border-t border-border">
+        ) : isEmpty ? (
+          <EmptyState
+            title={search ? t('common.nothing_found') : t('common.no_data')}
+            description={search ? t('common.nothing_found_hint') : t('common.no_records_hint')}
+            action={
+              search ? (
+                <Button variant="secondary" onClick={() => setSearch('')}>
+                  {t('ucheb_students.clear_search')}
+                </Button>
+              ) : (
+                <Button icon="plus" onClick={handleCreate}>
+                  {t('common.create')}
+                </Button>
+              )
+            }
+          />
+        ) : (
+          <>
+            <TreeHeader />
+            {tree.roots.map((node) => (
+              <TreeNode
+                key={node.id}
+                node={node}
+                depth={0}
+                collapsed={collapsed}
+                onToggle={handleToggle}
+                onEdit={handleEdit}
+                onDelete={handleDeleteClick}
+                isDeleting={isDeleting}
+                deleteId={deleteId}
+              />
+            ))}
+          </>
+        )}
+      </div>
+
+      {/* Подразделения, чей родитель не найден в выборке — отдельным блоком */}
+      {tree.orphans.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="text-base font-semibold">{t('kadr.orphan_departments')}</h2>
+          <div className="table-scroll rounded-card border border-border bg-surface shadow-card">
+            <TreeHeader />
             {tree.orphans.map((node) => (
               <TreeNode
                 key={node.id}
@@ -262,7 +310,7 @@ export default function DepartmentsPage() {
               />
             ))}
           </div>
-        </>
+        </section>
       )}
 
       <DepartmentForm
@@ -279,6 +327,7 @@ export default function DepartmentsPage() {
         message={t('kadr.confirm_delete_department')}
         confirmText={t('common.yes')}
         cancelText={t('common.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

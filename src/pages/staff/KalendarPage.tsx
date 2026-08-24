@@ -13,9 +13,11 @@ import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
 import { Select } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
 import Pagination from '@/shared/ui/Pagination'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
+import EmptyState from '@/shared/ui/EmptyState'
 
 const PAGE_SIZE = 10
 
@@ -134,6 +136,7 @@ export default function KalendarPage() {
     {
       key: 'god',
       header: t('kalendar.enrollment_year'),
+      className: 'tabular whitespace-nowrap',
       render: (row) => row.out_god_value ?? '',
     },
     {
@@ -144,11 +147,13 @@ export default function KalendarPage() {
     {
       key: 'kurs',
       header: t('kalendar.kurs'),
+      className: 'tabular',
       render: (row) => row.out_kurs_nomer ?? '',
     },
     {
       key: 'semestr',
       header: t('kalendar.semestr'),
+      className: 'tabular',
       render: (row) => row.out_semestr_nomer ?? '',
     },
     {
@@ -159,98 +164,101 @@ export default function KalendarPage() {
     {
       key: 'date_start',
       header: t('kalendar.date_start'),
+      className: 'tabular whitespace-nowrap',
       render: (row) => formatDate(row.out_kalendar_nachalo),
     },
     {
       key: 'date_end',
       header: t('kalendar.date_end'),
+      className: 'tabular whitespace-nowrap',
       render: (row) => formatDate(row.out_kalendar_konec),
     },
     {
       key: 'actions',
       header: t('kalendar.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            loading={isDeleting && deleteId === row.out_kalendar_id}
-            onClick={() => handleDeleteClick(row.out_kalendar_id)}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
+        <RowActions
+          onEdit={() => handleEdit(row)}
+          onDelete={() => handleDeleteClick(row.out_kalendar_id)}
+          deleting={isDeleting && deleteId === row.out_kalendar_id}
+        />
       ),
     },
   ]
 
+  // Списки фильтров ещё грузятся — показываем шапку со спиннером,
+  // чтобы страница не «прыгала» при появлении контента.
   if (isPageLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner />
+      <div className="flex flex-col gap-5">
+        <PageHeader title={t('kalendar.menu_name')} busy />
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('kalendar.menu_name')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        {filtersSelected && <span className="ml-auto text-sm text-muted">{total}</span>}
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('kalendar.menu_name')}
+        count={filtersSelected ? total : undefined}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('kalendar.create')}
+          </Button>
+        }
+      />
 
-      <div className="flex items-end gap-3">
-        <Select
-          label={t('kalendar.specialty')}
-          value={filterSpec}
-          onChange={(e) => handleFilterChange('spec', e.target.value)}
-          className="w-64"
-        >
-          <option value="">{t('kalendar.select_specialty')}</option>
-          {specList.map((item) => (
-            <option key={item.spec_id} value={item.spec_id}>
-              {item.spec_name}
-            </option>
-          ))}
-        </Select>
+      {/* Карточка фильтров: раздел бесполезен, пока не выбран контингент. */}
+      <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <Select
+            label={t('kalendar.specialty')}
+            value={filterSpec}
+            onChange={(e) => handleFilterChange('spec', e.target.value)}
+          >
+            <option value="">{t('kalendar.select_specialty')}</option>
+            {specList.map((item) => (
+              <option key={item.spec_id} value={item.spec_id}>
+                {item.spec_name}
+              </option>
+            ))}
+          </Select>
 
-        <Select
-          label={t('kalendar.form_of_education')}
-          value={filterFormaObuch}
-          onChange={(e) => handleFilterChange('forma_obuch', e.target.value)}
-          className="w-64"
-        >
-          <option value="">{t('kalendar.select_form_of_education')}</option>
-          {formaObuchList.map((item) => (
-            <option key={item.forma_obuch_id} value={item.forma_obuch_id}>
-              {item.forma_obuch_name}
-            </option>
-          ))}
-        </Select>
+          <Select
+            label={t('kalendar.form_of_education')}
+            value={filterFormaObuch}
+            onChange={(e) => handleFilterChange('forma_obuch', e.target.value)}
+          >
+            <option value="">{t('kalendar.select_form_of_education')}</option>
+            {formaObuchList.map((item) => (
+              <option key={item.forma_obuch_id} value={item.forma_obuch_id}>
+                {item.forma_obuch_name}
+              </option>
+            ))}
+          </Select>
 
-        <Select
-          label={t('kalendar.enrollment_year')}
-          value={filterGod}
-          onChange={(e) => handleFilterChange('god', e.target.value)}
-          className="w-44"
-        >
-          <option value="">{t('kalendar.select_enrollment_year')}</option>
-          {godList.map((item) => (
-            <option key={item.god_id} value={item.god_id}>
-              {item.god_value}
-            </option>
-          ))}
-        </Select>
-
-        <Button onClick={handleCreate}>{t('kalendar.create')}</Button>
+          <Select
+            label={t('kalendar.enrollment_year')}
+            value={filterGod}
+            onChange={(e) => handleFilterChange('god', e.target.value)}
+            className="tabular"
+          >
+            <option value="">{t('kalendar.select_enrollment_year')}</option>
+            {godList.map((item) => (
+              <option key={item.god_id} value={item.god_id}>
+                {item.god_value}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
       {!filtersSelected ? (
-        <div className="flex flex-col items-center justify-center py-12 text-muted">
-          <p>{t('kalendar.select_filter_prompt')}</p>
+        <div className="rounded-card border border-border bg-surface shadow-card">
+          <EmptyState icon="search" title={t('kalendar.select_filter_prompt')} />
         </div>
       ) : (
         <>
@@ -260,9 +268,21 @@ export default function KalendarPage() {
             rowKey={(row) => row.out_kalendar_id}
             loading={isFetching}
             emptyMessage={t('kalendar.no_records')}
+            emptyDescription={t('common.no_records_hint')}
+            emptyAction={
+              <Button icon="plus" onClick={handleCreate}>
+                {t('kalendar.create')}
+              </Button>
+            }
           />
 
-          <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
+          <Pagination
+            page={page}
+            lastPage={lastPage}
+            onPageChange={setPage}
+            total={total}
+            pageSize={PAGE_SIZE}
+          />
         </>
       )}
 
@@ -287,6 +307,7 @@ export default function KalendarPage() {
         message={t('kalendar.confirm_delete')}
         confirmText={t('kalendar.yes')}
         cancelText={t('kalendar.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

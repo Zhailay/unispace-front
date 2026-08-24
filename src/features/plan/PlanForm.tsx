@@ -240,17 +240,31 @@ export default function PlanForm({
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'plan-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      size="xl"
       title={isEdit ? t('plan.change_plan') : t('plan.add_plan')}
-      className="max-w-4xl"
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('plan.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('plan.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Block 1: Kurs / Semestr / Period obuch - only in create mode */}
         {!isEdit && (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid gap-4 sm:grid-cols-3">
             <Select
               label={t('plan.kurs')}
               value={idKurs}
@@ -258,6 +272,7 @@ export default function PlanForm({
                 setIdKurs(e.target.value)
                 setIdPeriodObuch('')
               }}
+              className="tabular"
               required
             >
               <option value="">{t('plan.select_kurs')}</option>
@@ -275,6 +290,7 @@ export default function PlanForm({
                 setIdSemestr(e.target.value)
                 setIdPeriodObuch('')
               }}
+              className="tabular"
               required
             >
               <option value="">{t('plan.select_semestr')}</option>
@@ -303,49 +319,49 @@ export default function PlanForm({
         )}
 
         {/* Block 2: Discipline search */}
-        <div>
-          <label className="mb-1 block text-sm font-medium">
-            {t('plan.disciplina')} <span className="text-danger">*</span>
-          </label>
-          <div className="flex gap-2 rounded border border-border p-2">
-            <input
-              type="text"
-              value={disciplinaSearch}
-              onChange={(e) => setDisciplinaSearch(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              placeholder={t('plan.search_disciplina')}
-              className="w-56 shrink-0 rounded-card border border-border bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted focus:outline-2 focus:outline-offset-0 focus:outline-primary"
-            />
+        <div className="flex flex-col gap-3 rounded-card border border-border bg-surface-2 p-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="min-w-0 flex-1">
+              <Input
+                label={t('plan.search_disciplina')}
+                value={disciplinaSearch}
+                onChange={(e) => setDisciplinaSearch(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
+                placeholder={t('plan.search_disciplina')}
+              />
+            </div>
             <Button
               type="button"
               variant="secondary"
+              icon="search"
               onClick={handleSearchDisciplina}
               loading={isSearching}
             >
               {t('plan.search')}
             </Button>
-            <select
-              value={idDisciplina}
-              onChange={(e) => setIdDisciplina(e.target.value)}
-              className="flex-1 rounded-card border border-border bg-surface px-3 py-2 text-sm text-fg focus:outline-2 focus:outline-offset-0 focus:outline-primary"
-              required
-            >
-              <option value="">{t('plan.select_disciplina_placeholder')}</option>
-              {/* In edit mode, show current discipline if no search done */}
-              {isEdit && editRow && !searchTrigger && editRow.out_id_disciplina && (
-                <option value={editRow.out_id_disciplina}>{editRow.out_disciplina_name}</option>
-              )}
-              {disciplinaOptions.map((item) => (
-                <option key={item.disciplina_id} value={item.disciplina_id}>
-                  {item.disciplina_name}
-                </option>
-              ))}
-            </select>
           </div>
+
+          <Select
+            label={t('plan.disciplina')}
+            value={idDisciplina}
+            onChange={(e) => setIdDisciplina(e.target.value)}
+            required
+          >
+            <option value="">{t('plan.select_disciplina_placeholder')}</option>
+            {/* In edit mode, show current discipline if no search done */}
+            {isEdit && editRow && !searchTrigger && editRow.out_id_disciplina && (
+              <option value={editRow.out_id_disciplina}>{editRow.out_disciplina_name}</option>
+            )}
+            {disciplinaOptions.map((item) => (
+              <option key={item.disciplina_id} value={item.disciplina_id}>
+                {item.disciplina_name}
+              </option>
+            ))}
+          </Select>
         </div>
 
         {/* Block 3: Obsh name / Modul / Forma kontrolya / Kod */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Select
             label={t('plan.obsh_name')}
             value={idObshName}
@@ -389,11 +405,12 @@ export default function PlanForm({
             label={t('plan.kod_discipliny')}
             value={planKod}
             onChange={(e) => setPlanKod(e.target.value)}
+            className="tabular"
           />
         </div>
 
         {/* Block 4: Language groups */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Select
             label={t('plan.kaz_gruppy')}
             value={idYazykKaz}
@@ -444,7 +461,7 @@ export default function PlanForm({
         </div>
 
         {/* Block 5: Learning outcomes */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid gap-4 sm:grid-cols-3">
           <Textarea
             label={t('plan.rezultat_kz')}
             value={rezultatKz}
@@ -465,15 +482,6 @@ export default function PlanForm({
             onChange={(e) => setRezultatEn(e.target.value)}
             rows={2}
           />
-        </div>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('plan.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('plan.save_but')}
-          </Button>
         </div>
       </form>
     </Modal>

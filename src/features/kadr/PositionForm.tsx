@@ -107,25 +107,41 @@ export default function PositionForm({ open, onClose, vidPersonalList, editRow }
     return row.ru
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'position-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
       title={isEdit ? t('kadr.edit_position') : t('kadr.create_position')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('common.save')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <Input
-          label={t('kadr.name_kz')}
-          value={nameKz}
-          onChange={(e) => setNameKz(e.target.value)}
-          required
-        />
-        <Input
-          label={t('kadr.name_ru')}
-          value={nameRu}
-          onChange={(e) => setNameRu(e.target.value)}
-          required
-        />
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input
+            label={t('kadr.name_kz')}
+            value={nameKz}
+            onChange={(e) => setNameKz(e.target.value)}
+            required
+          />
+          <Input
+            label={t('kadr.name_ru')}
+            value={nameRu}
+            onChange={(e) => setNameRu(e.target.value)}
+            required
+          />
+        </div>
         <Input
           label={t('kadr.name_en')}
           value={nameEn}
@@ -144,15 +160,6 @@ export default function PositionForm({ open, onClose, vidPersonalList, editRow }
             </option>
           ))}
         </Select>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('common.save')}
-          </Button>
-        </div>
       </form>
     </Modal>
   )

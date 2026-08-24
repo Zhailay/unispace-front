@@ -118,14 +118,29 @@ export default function DepartmentForm({ open, onClose, vidList, allDepartments,
   // Filter out current department from parent options to prevent self-reference
   const parentOptions = allDepartments.filter((d) => d.id !== editRow?.id)
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'department-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      size="lg"
       title={isEdit ? t('kadr.edit_department') : t('kadr.create_department')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('common.save')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="grid gap-4 sm:grid-cols-3">
           <Input
             label={t('kadr.name_kz')}
             value={nameKz}
@@ -146,7 +161,7 @@ export default function DepartmentForm({ open, onClose, vidList, allDepartments,
           />
         </div>
 
-        <div className="grid grid-cols-4 gap-4 items-end">
+        <div className="grid items-end gap-4 sm:grid-cols-2">
           <Select
             label={t('kadr.department_type')}
             value={typeId}
@@ -160,18 +175,6 @@ export default function DepartmentForm({ open, onClose, vidList, allDepartments,
             ))}
           </Select>
 
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-fg">{t('kadr.is_active')}</label>
-            <label className="flex items-center gap-2 h-10">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="size-4 rounded border-border"
-              />
-            </label>
-          </div>
-
           <Select
             label={t('kadr.parent_department')}
             value={parentId}
@@ -184,22 +187,30 @@ export default function DepartmentForm({ open, onClose, vidList, allDepartments,
               </option>
             ))}
           </Select>
+        </div>
 
+        <div className="grid items-end gap-4 sm:grid-cols-2">
           <Input
             label={t('kadr.order_number')}
             type="number"
             value={order}
             onChange={(e) => setOrder(e.target.value)}
+            className="tabular"
           />
-        </div>
 
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('common.save')}
-          </Button>
+          <label
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-control border
+              border-border bg-surface px-3 text-sm text-fg transition-colors
+              hover:border-border-strong"
+          >
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="size-4 cursor-pointer rounded border-border accent-primary"
+            />
+            {t('kadr.is_active')}
+          </label>
         </div>
       </form>
     </Modal>

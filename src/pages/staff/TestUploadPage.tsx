@@ -7,15 +7,22 @@ import {
   useTestUploadDisciplinesQuery,
   useDeleteTestMutation,
   type DisciplinaItem,
+  type TestRow,
 } from '@/features/testUpload/testUploadApi'
 import { useRtfUpload } from '@/features/testUpload/useRtfUpload'
 import { useT } from '@/shared/i18n/useT'
-import { Select } from '@/shared/ui/Field'
+import { Input, Select } from '@/shared/ui/Field'
 import Button from '@/shared/ui/Button'
+import Icon from '@/shared/ui/Icon'
 import Spinner from '@/shared/ui/Spinner'
 import Modal from '@/shared/ui/Modal'
 import ConfirmDialog from '@/shared/ui/ConfirmDialog'
+import DataTable, { type Column } from '@/shared/ui/DataTable'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
 import type { Id } from '@/shared/types/api'
+
+const FORM_ID = 'test-upload-form'
 
 /**
  * TestUploadPage: Main page for test upload management.
@@ -43,6 +50,8 @@ export default function TestUploadPage() {
   const [idNedelya, setIdNedelya] = useState('1')
   const [testType, setTestType] = useState('1')
   const [disableSymbolCheck, setDisableSymbolCheck] = useState(false)
+  // Имя выбранного файла — только для отображения в дропзоне, на загрузку не влияет.
+  const [fileName, setFileName] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Data queries
@@ -68,6 +77,7 @@ export default function TestUploadPage() {
       setIdNedelya('1')
       setTestType('1')
       setDisableSymbolCheck(false)
+      setFileName('')
       reset()
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
@@ -135,186 +145,227 @@ export default function TestUploadPage() {
     }
   }
 
-  if (isPageLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner />
-      </div>
-    )
-  }
+  // Форма скрыта, пока идёт загрузка/разбор — вместо неё показываем прогресс.
+  const showForm = !isUploading && !status
+
+  const columns: Column<TestRow>[] = [
+    {
+      key: 'id',
+      header: '#',
+      className: 'tabular w-px whitespace-nowrap text-muted',
+      render: (row) => row.test_id,
+    },
+    {
+      key: 'disciplina',
+      header: t('test_upload.disciplina'),
+      className: 'font-medium',
+      render: (row) => row.disciplina_name,
+    },
+    { key: 'yazyk', header: t('test_upload.yazyk'), render: (row) => row.yazyk_name },
+    {
+      key: 'nedelya',
+      header: t('test_upload.nedelya'),
+      align: 'center',
+      className: 'tabular',
+      render: (row) => row.id_nedelya,
+    },
+    { key: 'type', header: t('test_upload.test_type'), render: (row) => row.test_type },
+    {
+      key: 'questions',
+      header: t('test_upload.questions_count'),
+      align: 'center',
+      className: 'tabular',
+      render: (row) => row.questions_count,
+    },
+    {
+      key: 'actions',
+      header: t('common.actions'),
+      align: 'right',
+      className: 'w-px',
+      render: (row) => (
+        <RowActions
+          onEdit={() => navigate(`/staff/test-upload/manage/${row.test_id}`)}
+          onDelete={() => setDeleteId(row.test_id)}
+          deleting={isDeleting && deleteId === row.test_id}
+        />
+      ),
+    },
+  ]
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{t('test_upload.title')}</h1>
-        <Button onClick={() => setModalOpen(true)}>{t('test_upload.create')}</Button>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('test_upload.title')}
+        count={tests.length}
+        busy={isPageLoading}
+        actions={
+          <Button icon="upload" onClick={() => setModalOpen(true)}>
+            {t('test_upload.create')}
+          </Button>
+        }
+      />
 
-      {/* Tests table */}
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-bg">
-              <tr className="border-b border-border">
-                <th className="px-3 py-2 text-left font-medium">#</th>
-                <th className="px-3 py-2 text-left font-medium">{t('test_upload.disciplina')}</th>
-                <th className="px-3 py-2 text-left font-medium">{t('test_upload.yazyk')}</th>
-                <th className="px-3 py-2 text-center font-medium">{t('test_upload.nedelya')}</th>
-                <th className="px-3 py-2 text-left font-medium">{t('test_upload.test_type')}</th>
-                <th className="px-3 py-2 text-center font-medium">{t('test_upload.questions_count')}</th>
-                <th className="px-3 py-2 text-center font-medium">{t('common.actions')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tests.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-muted">
-                    {t('common.no_data')}
-                  </td>
-                </tr>
-              ) : (
-                tests.map((test) => (
-                  <tr key={test.test_id} className="border-b border-border">
-                    <td className="px-3 py-2">{test.test_id}</td>
-                    <td className="px-3 py-2">{test.disciplina_name}</td>
-                    <td className="px-3 py-2">{test.yazyk_name}</td>
-                    <td className="px-3 py-2 text-center">{test.id_nedelya}</td>
-                    <td className="px-3 py-2">{test.test_type}</td>
-                    <td className="px-3 py-2 text-center">{test.questions_count}</td>
-                    <td className="px-3 py-2 text-center">
-                      <div className="flex justify-center gap-1">
-                        <button
-                          onClick={() => navigate(`/staff/test-upload/manage/${test.test_id}`)}
-                          className="rounded px-2 py-1 text-xs text-primary hover:bg-bg"
-                        >
-                          {t('common.edit')}
-                        </button>
-                        <button
-                          onClick={() => setDeleteId(test.test_id)}
-                          className="rounded px-2 py-1 text-xs text-danger hover:bg-bg"
-                        >
-                          {t('common.delete')}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        columns={columns}
+        data={tests}
+        rowKey={(row) => String(row.test_id)}
+        loading={isPageLoading}
+        emptyMessage={t('common.no_data')}
+        emptyDescription={t('common.no_records_hint')}
+        emptyAction={
+          <Button icon="upload" onClick={() => setModalOpen(true)}>
+            {t('test_upload.create')}
+          </Button>
+        }
+      />
 
       {/* Upload Modal */}
-      <Modal open={modalOpen} onClose={() => !isUploading && setModalOpen(false)} title={t('test_upload.create')}>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Modal
+        open={modalOpen}
+        onClose={() => !isUploading && setModalOpen(false)}
+        title={t('test_upload.create')}
+        footer={
+          showForm ? (
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button type="submit" form={FORM_ID} icon="upload">
+                {t('test_upload.parse')}
+              </Button>
+            </div>
+          ) : undefined
+        }
+      >
+        <form id={FORM_ID} onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Form fields (hidden during upload) */}
-          {!isUploading && !status && (
+          {showForm && (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {/* Semester */}
-                <div>
-                  <label className="mb-1 block text-xs text-muted">{t('test_upload.academic_period')}</label>
-                  <Select value={filterSemestr} onChange={(e) => handleSemestrChange(e.target.value)} required>
-                    <option value="">—</option>
-                    {semestrList.map((s) => (
-                      <option key={s.semestr_id} value={s.semestr_id}>
-                        {s.semestr_nomer}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+                <Select
+                  label={t('test_upload.academic_period')}
+                  value={filterSemestr}
+                  onChange={(e) => handleSemestrChange(e.target.value)}
+                  required
+                >
+                  <option value="">—</option>
+                  {semestrList.map((s) => (
+                    <option key={s.semestr_id} value={s.semestr_id}>
+                      {s.semestr_nomer}
+                    </option>
+                  ))}
+                </Select>
 
                 {/* Discipline */}
-                <div>
-                  <label className="mb-1 block text-xs text-muted">{t('test_upload.disciplina')}</label>
-                  <Select
-                    value={selectedDisciplina?.plan_id ?? ''}
-                    onChange={(e) => handleDisciplinaChange(e.target.value)}
-                    required
-                    disabled={!filterSemestr}
-                  >
-                    <option value="">—</option>
-                    {disciplines?.map((d) => (
-                      <option key={d.plan_id} value={d.plan_id}>
-                        {d.gruppa_disciplina_name}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
+                <Select
+                  label={t('test_upload.disciplina')}
+                  value={selectedDisciplina?.plan_id ?? ''}
+                  onChange={(e) => handleDisciplinaChange(e.target.value)}
+                  required
+                  disabled={!filterSemestr}
+                >
+                  <option value="">—</option>
+                  {disciplines?.map((d) => (
+                    <option key={d.plan_id} value={d.plan_id}>
+                      {d.gruppa_disciplina_name}
+                    </option>
+                  ))}
+                </Select>
 
                 {/* Language */}
-                <div>
-                  <label className="mb-1 block text-xs text-muted">{t('test_upload.yazyk')}</label>
-                  <Select value={idYazyk} onChange={(e) => setIdYazyk(e.target.value)} required>
-                    <option value="1">Русский</option>
-                    <option value="2">Қазақша</option>
-                    <option value="3">English</option>
-                  </Select>
-                </div>
+                <Select
+                  label={t('test_upload.yazyk')}
+                  value={idYazyk}
+                  onChange={(e) => setIdYazyk(e.target.value)}
+                  required
+                >
+                  <option value="1">Русский</option>
+                  <option value="2">Қазақша</option>
+                  <option value="3">English</option>
+                </Select>
 
                 {/* Week */}
-                <div>
-                  <label className="mb-1 block text-xs text-muted">{t('test_upload.nedelya')}</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    className="w-full rounded border border-border bg-bg px-3 py-2 text-sm"
-                    value={idNedelya}
-                    onChange={(e) => setIdNedelya(e.target.value)}
-                    required
-                  />
-                </div>
+                <Input
+                  label={t('test_upload.nedelya')}
+                  type="number"
+                  min={1}
+                  max={20}
+                  className="tabular"
+                  value={idNedelya}
+                  onChange={(e) => setIdNedelya(e.target.value)}
+                  required
+                />
               </div>
 
               {/* Test Type (hidden - defaults to 1 Тренажёр) */}
               <input type="hidden" value={testType} />
 
               {/* RTF File */}
-              <div>
-                <label className="mb-1 block text-xs text-muted">{t('test_upload.rtf_file')}</label>
-                <input type="file" ref={fileInputRef} accept=".rtf" className="w-full rounded border border-border bg-bg px-3 py-2 text-sm" required />
-                <p className="mt-1 text-xs text-muted">
-                  Маркеры: <code className="rounded bg-bg px-1">#####</code> — вопрос, <code className="rounded bg-bg px-1">?????</code> — ответ,{' '}
-                  <code className="rounded bg-bg px-1">?????N</code> — N правильных в следующем блоке
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium text-fg">{t('test_upload.rtf_file')}</span>
+                {/* Дропзона: рамка + иконка, чтобы поле файла не выбивалось из общего вида. */}
+                <div
+                  className="flex flex-col items-center gap-2 rounded-card border border-dashed
+                    border-border bg-surface-2 px-4 py-5 text-center transition-colors
+                    hover:border-border-strong"
+                >
+                  <span className="flex size-10 items-center justify-center rounded-full bg-primary-soft text-primary">
+                    <Icon name="upload" className="size-5" />
+                  </span>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept=".rtf"
+                    onChange={(e) => setFileName(e.target.files?.[0]?.name ?? '')}
+                    className="max-w-full text-sm text-muted
+                      file:mr-3 file:cursor-pointer file:rounded-control file:border-0
+                      file:bg-surface file:px-3 file:py-1.5 file:text-sm file:font-medium
+                      file:text-fg hover:file:bg-border"
+                    required
+                  />
+                  {fileName && <p className="max-w-full truncate text-xs text-fg">{fileName}</p>}
+                </div>
+                <p className="text-xs text-muted">
+                  Маркеры: <code className="rounded bg-surface-2 px-1">#####</code> — вопрос,{' '}
+                  <code className="rounded bg-surface-2 px-1">?????</code> — ответ,{' '}
+                  <code className="rounded bg-surface-2 px-1">?????N</code> — N правильных в следующем блоке
                 </p>
               </div>
 
               {/* Disable symbol check */}
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={disableSymbolCheck} onChange={(e) => setDisableSymbolCheck(e.target.checked)} className="h-4 w-4" />
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={disableSymbolCheck}
+                  onChange={(e) => setDisableSymbolCheck(e.target.checked)}
+                  className="size-4 cursor-pointer accent-primary"
+                />
                 <span className="text-sm">{t('test_upload.disable_symbol_check')}</span>
               </label>
 
               {/* Error message */}
-              {error && <div className="rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-400">{error}</div>}
-
-              {/* Buttons */}
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
-                  {t('common.cancel')}
-                </Button>
-                <Button type="submit">{t('test_upload.parse')}</Button>
-              </div>
+              {error && (
+                <div className="flex items-start gap-2 rounded-control border border-danger bg-danger-soft px-3 py-2 text-sm text-danger">
+                  <Icon name="alert" className="mt-0.5 size-4" />
+                  <span>{error}</span>
+                </div>
+              )}
             </>
           )}
 
           {/* Progress view */}
           {(isUploading || status) && (
             <div className="flex flex-col items-center gap-4 py-4">
-              {isUploading && (
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              )}
+              {isUploading && <Spinner className="size-10 border-4" />}
               <h5 className="text-center font-medium">{status}</h5>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
                 <div
                   className="h-full bg-primary transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <p className="text-sm text-muted">{progress}%</p>
+              <p className="tabular text-sm text-muted">{progress}%</p>
               {isUploading && (
                 <Button type="button" variant="secondary" onClick={abort}>
                   {t('common.cancel')}

@@ -12,10 +12,12 @@ import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import { SearchInput } from '@/shared/ui/Field'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
 import Pagination from '@/shared/ui/Pagination'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
+import Badge from '@/shared/ui/Badge'
 
 const PAGE_SIZE = 10
 
@@ -96,11 +98,16 @@ export default function ModulNamePage() {
     {
       key: 'tip_modul',
       header: t('modul_name.tip_modul'),
-      render: (row) => (row.out_id_tip_modul ? tipModulMap.get(String(row.out_id_tip_modul)) ?? '' : ''),
+      className: 'w-px',
+      render: (row) => {
+        const name = row.out_id_tip_modul ? tipModulMap.get(String(row.out_id_tip_modul)) ?? '' : ''
+        return name ? <Badge tone="primary">{name}</Badge> : ''
+      },
     },
     {
       key: 'name_kz',
       header: t('modul_name.name_kz'),
+      className: 'font-medium',
       render: (row) => row.out_modul_name_kz,
     },
     {
@@ -116,61 +123,61 @@ export default function ModulNamePage() {
     {
       key: 'short_kz',
       header: t('modul_name.short_kz'),
+      className: 'text-muted whitespace-nowrap',
       render: (row) => row.out_modul_name_short_kz,
     },
     {
       key: 'short_ru',
       header: t('modul_name.short_ru'),
+      className: 'text-muted whitespace-nowrap',
       render: (row) => row.out_modul_name_short_ru,
     },
     {
       key: 'short_en',
       header: t('modul_name.short_en'),
+      className: 'text-muted whitespace-nowrap',
       render: (row) => row.out_modul_name_short_en,
     },
     {
       key: 'actions',
       header: t('modul_name.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            loading={isDeleting && deleteId === row.out_modul_name_id}
-            onClick={() => handleDeleteClick(row.out_modul_name_id)}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
+        <RowActions
+          onEdit={() => handleEdit(row)}
+          onDelete={() => handleDeleteClick(row.out_modul_name_id)}
+          deleting={isDeleting && deleteId === row.out_modul_name_id}
+        />
       ),
     },
   ]
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('modul_name.menu_name')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        <span className="ml-auto text-sm text-muted">{total}</span>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('modul_name.menu_name')}
+        count={total}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('modul_name.create')}
+          </Button>
+        }
+      />
 
-      <div className="flex items-end gap-3">
-        <Input
-          label={t('modul_name.search')}
+      <div className="w-full sm:max-w-xs">
+        <SearchInput
+          clearLabel={t('common.clear_search')}
+          label={t('common.search')}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value)
             setPage(0)
           }}
-          placeholder={t('common.search')}
-          className="max-w-sm"
+          onClear={handleClearSearch}
+          placeholder={t('modul_name.search')}
         />
-        <Button variant="secondary" onClick={handleClearSearch}>
-          {t('common.clear')}
-        </Button>
-        <Button onClick={handleCreate}>{t('modul_name.create')}</Button>
       </div>
 
       <DataTable
@@ -178,9 +185,28 @@ export default function ModulNamePage() {
         data={rows}
         rowKey={(row) => row.out_modul_name_id}
         loading={isFetching}
+        emptyMessage={search ? t('common.nothing_found') : t('common.no_data')}
+        emptyDescription={search ? t('common.nothing_found_hint') : t('common.no_records_hint')}
+        emptyAction={
+          search ? (
+            <Button variant="secondary" onClick={handleClearSearch}>
+              {t('ucheb_students.clear_search')}
+            </Button>
+          ) : (
+            <Button icon="plus" onClick={handleCreate}>
+              {t('modul_name.create')}
+            </Button>
+          )
+        }
       />
 
-      <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        lastPage={lastPage}
+        onPageChange={setPage}
+        total={total}
+        pageSize={PAGE_SIZE}
+      />
 
       <ModulNameForm
         open={formOpen}
@@ -195,6 +221,7 @@ export default function ModulNamePage() {
         message={t('modul_name.confirm_delete')}
         confirmText={t('modul_name.yes')}
         cancelText={t('modul_name.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

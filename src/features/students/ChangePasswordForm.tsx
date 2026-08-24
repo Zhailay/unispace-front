@@ -55,9 +55,27 @@ export default function ChangePasswordForm({ open, onClose, studentId }: Props) 
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'student-password-form'
+
   return (
-    <Modal open={open} onClose={onClose} title={t('ucheb_students.password')}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('ucheb_students.password')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('ucheb_students.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('ucheb_students.save_but')}
+          </Button>
+        </div>
+      }
+    >
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label={t('ucheb_students.password')}
           type="password"
@@ -65,15 +83,6 @@ export default function ChangePasswordForm({ open, onClose, studentId }: Props) 
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('ucheb_students.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('ucheb_students.save_but')}
-          </Button>
-        </div>
       </form>
     </Modal>
   )

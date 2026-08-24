@@ -10,10 +10,13 @@ import EmployeeForm from '@/features/kadr/EmployeeForm'
 import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
+import Badge from '@/shared/ui/Badge'
 import Button from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import { SearchInput } from '@/shared/ui/Field'
+import Icon from '@/shared/ui/Icon'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
 
 export default function EmployeesPage() {
   const t = useT()
@@ -76,11 +79,13 @@ export default function EmployeesPage() {
     {
       key: 'department',
       header: t('kadr.department'),
+      className: 'text-muted',
       render: (row) => row.podrazdelenieName ?? '',
     },
     {
       key: 'iin',
       header: t('kadr.iin'),
+      className: 'tabular font-medium whitespace-nowrap',
       render: (row) => row.iin,
     },
     {
@@ -106,63 +111,70 @@ export default function EmployeesPage() {
     {
       key: 'replacement_form',
       header: t('kadr.replacement_form'),
+      className: 'text-muted',
       render: (row) => row.formaZamescheniyaName ?? '',
     },
     {
       key: 'staffing',
       header: t('kadr.staffing'),
+      className: 'text-muted',
       render: (row) => row.shtatnostName ?? '',
     },
     {
       key: 'status',
       header: t('kadr.active_short'),
-      render: (row) => (row.status ? '✓' : ''),
+      align: 'center',
+      render: (row) =>
+        row.status ? (
+          <Icon
+            name="check"
+            className="mx-auto size-4 text-success"
+            title={t('kadr.is_active')}
+          />
+        ) : null,
     },
     {
       key: 'actions',
       header: t('common.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" className="px-2 py-1 text-xs" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            className="px-2 py-1 text-xs"
-            loading={isDeleting && deleteId === row.id}
-            onClick={() => handleDeleteClick(row.id)}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
+        <RowActions
+          onEdit={() => handleEdit(row)}
+          onDelete={() => handleDeleteClick(row.id)}
+          deleting={isDeleting && deleteId === row.id}
+        />
       ),
     },
   ]
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('nav.employees')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        <Button className="ml-auto" onClick={handleCreate}>
-          {t('common.create')}
-        </Button>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('nav.employees')}
+        count={meta.total}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('common.create')}
+          </Button>
+        }
+      />
 
-      <div className="flex items-end gap-6">
-        <div className="text-sm">
-          {t('kadr.total')}: <b>{meta.total}</b>
-        </div>
-        <div className="text-sm">
-          {t('kadr.active')}: <b>{meta.active}</b>
-        </div>
-        <div className="max-w-sm">
-          <Input
-            label={t('nav.employees')}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="w-full sm:max-w-xs">
+          <SearchInput
+          clearLabel={t('common.clear_search')}
+            label={t('common.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onClear={() => setSearch('')}
             placeholder={t('common.search')}
           />
+        </div>
+        <div className="flex items-center gap-2 text-sm text-muted">
+          {t('kadr.active')}
+          <Badge tone="success">{meta.active}</Badge>
         </div>
       </div>
 
@@ -171,6 +183,19 @@ export default function EmployeesPage() {
         data={employees}
         rowKey={(row) => row.id}
         loading={isFetching}
+        emptyMessage={search ? t('common.nothing_found') : t('common.no_data')}
+        emptyDescription={search ? t('common.nothing_found_hint') : t('common.no_records_hint')}
+        emptyAction={
+          search ? (
+            <Button variant="secondary" onClick={() => setSearch('')}>
+              {t('ucheb_students.clear_search')}
+            </Button>
+          ) : (
+            <Button icon="plus" onClick={handleCreate}>
+              {t('common.create')}
+            </Button>
+          )
+        }
       />
 
       <EmployeeForm
@@ -189,6 +214,7 @@ export default function EmployeesPage() {
         message={t('kadr.confirm_delete_employee')}
         confirmText={t('common.yes')}
         cancelText={t('common.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

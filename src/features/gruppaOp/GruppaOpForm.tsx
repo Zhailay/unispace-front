@@ -106,33 +106,50 @@ export default function GruppaOpForm({ open, onClose, editRow }: Props) {
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'gruppa-op-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
       title={isEdit ? t('gruppa_op.change_gruppa_op') : t('gruppa_op.add_gruppa_op')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('gruppa_op.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('gruppa_op.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
           label={t('gruppa_op.gruppa_op_kod')}
           value={kod}
           onChange={(e) => setKod(e.target.value)}
+          className="tabular"
           required
         />
 
-        <Input
-          label={t('gruppa_op.name_kz')}
-          value={nameKz}
-          onChange={(e) => setNameKz(e.target.value)}
-          required
-        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input
+            label={t('gruppa_op.name_kz')}
+            value={nameKz}
+            onChange={(e) => setNameKz(e.target.value)}
+            required
+          />
 
-        <Input
-          label={t('gruppa_op.name_ru')}
-          value={nameRu}
-          onChange={(e) => setNameRu(e.target.value)}
-          required
-        />
+          <Input
+            label={t('gruppa_op.name_ru')}
+            value={nameRu}
+            onChange={(e) => setNameRu(e.target.value)}
+            required
+          />
+        </div>
 
         <Input
           label={t('gruppa_op.name_en')}
@@ -140,15 +157,6 @@ export default function GruppaOpForm({ open, onClose, editRow }: Props) {
           onChange={(e) => setNameEn(e.target.value)}
           required
         />
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('gruppa_op.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('gruppa_op.save_but')}
-          </Button>
-        </div>
       </form>
     </Modal>
   )

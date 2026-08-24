@@ -169,16 +169,31 @@ export default function KalendarForm({
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'kalendar-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      size="lg"
       title={isEdit ? t('kalendar.change_record') : t('kalendar.add_record')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('kalendar.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('kalendar.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* In edit mode, show spec/forma_obuch/god dropdowns */}
         {isEdit && (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Select
               label={t('kalendar.specialty')}
               value={idSpec}
@@ -211,6 +226,7 @@ export default function KalendarForm({
               label={t('kalendar.enrollment_year')}
               value={idGod}
               onChange={(e) => setIdGod(e.target.value)}
+              className="tabular"
               required
             >
               <option value="">{t('kalendar.select_enrollment_year')}</option>
@@ -223,11 +239,12 @@ export default function KalendarForm({
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Select
             label={t('kalendar.kurs')}
             value={idKurs}
             onChange={(e) => setIdKurs(e.target.value)}
+            className="tabular"
             required
           >
             <option value="">{t('kalendar.select_kurs')}</option>
@@ -242,6 +259,7 @@ export default function KalendarForm({
             label={t('kalendar.semestr')}
             value={idSemestr}
             onChange={(e) => setIdSemestr(e.target.value)}
+            className="tabular"
             required
           >
             <option value="">{t('kalendar.select_semestr')}</option>
@@ -267,12 +285,13 @@ export default function KalendarForm({
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <Input
             type="date"
             label={t('kalendar.date_start')}
             value={kalendarNachalo}
             onChange={(e) => setKalendarNachalo(e.target.value)}
+            className="tabular"
             required
           />
 
@@ -281,17 +300,9 @@ export default function KalendarForm({
             label={t('kalendar.date_end')}
             value={kalendarKonec}
             onChange={(e) => setKalendarKonec(e.target.value)}
+            className="tabular"
             required
           />
-        </div>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('kalendar.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('kalendar.save_but')}
-          </Button>
         </div>
       </form>
     </Modal>

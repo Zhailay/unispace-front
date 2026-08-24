@@ -11,16 +11,18 @@ import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import { SearchInput } from '@/shared/ui/Field'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
 import Pagination from '@/shared/ui/Pagination'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
 
 const PAGE_SIZE = 10
 
 /**
- * GruppaOp (educational program groups) directory page: search, pagination, create, edit, delete.
- * Matches behavior from unispace/src/views/ucheb/gruppa_op.hbs
+ * Справочник групп образовательных программ: поиск, страницы, CRUD.
+ * Эталон для остальных справочников — PageHeader + тулбар + DataTable.
+ * Поведение перенесено из unispace/src/views/ucheb/gruppa_op.hbs
  */
 export default function GruppaOpPage() {
   const t = useT()
@@ -29,11 +31,9 @@ export default function GruppaOpPage() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
 
-  // Form modal state
   const [formOpen, setFormOpen] = useState(false)
   const [editRow, setEditRow] = useState<GruppaOpRow | null>(null)
 
-  // Delete confirmation state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [deleteId, setDeleteId] = useState<Id | null>(null)
 
@@ -70,16 +70,21 @@ export default function GruppaOpPage() {
 
   async function handleDeleteConfirm() {
     if (!deleteId) return
-    setDeleteConfirmOpen(false)
-    const result = await deleteGruppaOp(deleteId).unwrap()
-    dispatch(
-      toastPushed(
-        result.ok ? 'success' : 'error',
-        result.error ??
-          (result.ok ? t('gruppa_op.success_delete') : t('gruppa_op.error_connection')),
-      ),
-    )
-    setDeleteId(null)
+    try {
+      const result = await deleteGruppaOp(deleteId).unwrap()
+      dispatch(
+        toastPushed(
+          result.ok ? 'success' : 'error',
+          result.error ??
+            (result.ok ? t('gruppa_op.success_delete') : t('gruppa_op.error_connection')),
+        ),
+      )
+    } catch {
+      dispatch(toastPushed('error', t('gruppa_op.error_connection')))
+    } finally {
+      setDeleteConfirmOpen(false)
+      setDeleteId(null)
+    }
   }
 
   function handleDeleteCancel() {
@@ -91,63 +96,55 @@ export default function GruppaOpPage() {
     {
       key: 'kod',
       header: t('gruppa_op.gruppa_op_kod'),
+      className: 'tabular font-medium whitespace-nowrap',
       render: (row) => row.out_gruppa_op_kod,
     },
-    {
-      key: 'name_kz',
-      header: t('gruppa_op.name_kz'),
-      render: (row) => row.out_gruppa_op_kz,
-    },
-    {
-      key: 'name_ru',
-      header: t('gruppa_op.name_ru'),
-      render: (row) => row.out_gruppa_op_ru,
-    },
-    {
-      key: 'name_en',
-      header: t('gruppa_op.name_en'),
-      render: (row) => row.out_gruppa_op_en,
-    },
+    { key: 'name_kz', header: t('gruppa_op.name_kz'), render: (row) => row.out_gruppa_op_kz },
+    { key: 'name_ru', header: t('gruppa_op.name_ru'), render: (row) => row.out_gruppa_op_ru },
+    { key: 'name_en', header: t('gruppa_op.name_en'), render: (row) => row.out_gruppa_op_en },
     {
       key: 'actions',
       header: t('gruppa_op.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button
-            variant="danger"
-            loading={isDeleting && deleteId === row.out_gruppa_op_id}
-            onClick={() => handleDeleteClick(row.out_gruppa_op_id)}
-          >
-            {t('common.delete')}
-          </Button>
-        </div>
+        <RowActions
+          onEdit={() => handleEdit(row)}
+          onDelete={() => handleDeleteClick(row.out_gruppa_op_id)}
+          deleting={isDeleting && deleteId === row.out_gruppa_op_id}
+        />
       ),
     },
   ]
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('gruppa_op.gruppa_op')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        <span className="ml-auto text-sm text-muted">{total}</span>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('gruppa_op.gruppa_op')}
+        count={total}
+        busy={isFetching}
+        actions={
+          <Button icon="plus" onClick={handleCreate}>
+            {t('gruppa_op.create')}
+          </Button>
+        }
+      />
 
-      <div className="flex items-end gap-3">
-        <Input
-          label={t('gruppa_op.search')}
+      <div className="w-full sm:max-w-xs">
+        <SearchInput
+          clearLabel={t('common.clear_search')}
+          label={t('common.search')}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value)
             setPage(0)
           }}
-          placeholder={t('common.search')}
-          className="max-w-sm"
+          onClear={() => {
+            setSearch('')
+            setPage(0)
+          }}
+          placeholder={t('gruppa_op.search')}
         />
-        <Button onClick={handleCreate}>{t('gruppa_op.create')}</Button>
       </div>
 
       <DataTable
@@ -155,15 +152,32 @@ export default function GruppaOpPage() {
         data={rows}
         rowKey={(row) => row.out_gruppa_op_id}
         loading={isFetching}
+        emptyMessage={search ? t('common.nothing_found') : t('common.no_data')}
+        emptyDescription={
+          search ? t('common.nothing_found_hint') : t('common.no_records_hint')
+        }
+        emptyAction={
+          search ? (
+            <Button variant="secondary" onClick={() => setSearch('')}>
+              {t('ucheb_students.clear_search')}
+            </Button>
+          ) : (
+            <Button icon="plus" onClick={handleCreate}>
+              {t('gruppa_op.create')}
+            </Button>
+          )
+        }
       />
 
-      <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
-
-      <GruppaOpForm
-        open={formOpen}
-        onClose={handleCloseForm}
-        editRow={editRow}
+      <Pagination
+        page={page}
+        lastPage={lastPage}
+        onPageChange={setPage}
+        total={total}
+        pageSize={PAGE_SIZE}
       />
+
+      <GruppaOpForm open={formOpen} onClose={handleCloseForm} editRow={editRow} />
 
       <ConfirmDialog
         open={deleteConfirmOpen}
@@ -171,6 +185,7 @@ export default function GruppaOpPage() {
         message={t('gruppa_op.confirm_delete')}
         confirmText={t('gruppa_op.yes')}
         cancelText={t('gruppa_op.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />

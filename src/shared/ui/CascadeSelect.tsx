@@ -1,8 +1,10 @@
 import { useId } from 'react'
 import Spinner from './Spinner'
 
+// h-10 — та же высота, что у Field и Button size="md": иначе селекты
+// каскада не совпадают по высоте с остальными контролами на странице.
 const CONTROL =
-  `w-full rounded-card border border-border bg-surface px-3 py-2 text-sm text-fg
+  `h-10 w-full cursor-pointer rounded-card border border-border bg-surface px-3 text-sm text-fg
    placeholder:text-muted focus:outline-2 focus:outline-offset-0 focus:outline-primary
    disabled:cursor-not-allowed disabled:opacity-60`
 

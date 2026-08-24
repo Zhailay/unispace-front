@@ -1,47 +1,134 @@
 @import 'tailwindcss';
 
 /*
- * Дизайн-токены. Tailwind v4 конфигурируется прямо в CSS, отдельный
- * tailwind.config.js не нужен: всё, что объявлено в @theme, становится
- * утилитами (bg-surface, text-muted, rounded-card и т.д.).
+ * Дизайн-система Tanym — «Data-Dense Dashboard».
+ * Подробности и обоснование: design-system/tanym/MASTER.md
+ *
+ * Tailwind v4 настраивается прямо в CSS: всё, что объявлено в @theme,
+ * превращается в утилиты (bg-surface, text-muted, rounded-card, shadow-card).
+ * Отдельный tailwind.config.js не нужен.
+ *
+ * Шрифты подключаются <link>-ом в index.html, а НЕ через @import:
+ * `@import 'tailwindcss'` разворачивается на месте, и любой @import ниже
+ * оказывается в середине файла — CSS такого не допускает.
  */
+
 @theme {
-  --color-bg: oklch(0.98 0.005 250);
+  /* --- Поверхности -------------------------------------------------- */
+  --color-bg: oklch(0.98 0.004 250);
   --color-surface: oklch(1 0 0);
-  --color-border: oklch(0.91 0.008 250);
-  --color-muted: oklch(0.55 0.02 250);
-  --color-fg: oklch(0.22 0.02 250);
+  --color-surface-2: oklch(0.975 0.005 250);
+  --color-border: oklch(0.925 0.008 250);
+  --color-border-strong: oklch(0.86 0.012 250);
 
-  --color-primary: oklch(0.55 0.17 255);
-  --color-primary-hover: oklch(0.49 0.17 255);
+  /* --- Текст (контраст к --color-bg не ниже 4.5:1) ------------------- */
+  --color-fg: oklch(0.24 0.03 265);
+  --color-muted: oklch(0.52 0.025 258);
+  --color-subtle: oklch(0.54 0.02 258);
+
+  /* --- Бренд --------------------------------------------------------- */
+  --color-primary: oklch(0.45 0.18 264);
+  --color-primary-hover: oklch(0.39 0.18 264);
   --color-primary-fg: oklch(1 0 0);
+  --color-primary-soft: oklch(0.95 0.03 264);
 
-  --color-success: oklch(0.62 0.15 150);
-  --color-danger: oklch(0.58 0.19 25);
+  /* Акцент — только для выделения, не для основных действий. */
+  --color-accent: oklch(0.77 0.16 70);
+  --color-accent-fg: oklch(0.28 0.06 70);
+
+  /* --- Семантика ----------------------------------------------------- */
+  --color-success: oklch(0.52 0.14 155);
+  --color-success-soft: oklch(0.95 0.04 155);
+  --color-danger: oklch(0.55 0.2 27);
+  --color-danger-hover: oklch(0.48 0.2 27);
+  --color-danger-soft: oklch(0.95 0.03 27);
+  /* Текст на красной кнопке. В тёмной теме сам красный светлеет, и белый
+     текст на нём даёт лишь 3.5:1 — поэтому цвет переворачивается. */
+  --color-danger-fg: oklch(1 0 0);
   --color-warning: oklch(0.72 0.16 75);
+  --color-warning-soft: oklch(0.96 0.05 75);
+  --color-info: oklch(0.62 0.19 259);
+  --color-info-soft: oklch(0.95 0.04 259);
 
+  /* --- Радиусы ------------------------------------------------------- */
   --radius-card: 0.625rem;
+  --radius-control: 0.5rem;
 
-  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  /* --- Тени: мягкие, чтобы не спорить с плотной сеткой данных -------- */
+  --shadow-card: 0 1px 2px 0 oklch(0.24 0.03 265 / 0.06);
+  --shadow-raised: 0 1px 3px 0 oklch(0.24 0.03 265 / 0.1), 0 1px 2px -1px oklch(0.24 0.03 265 / 0.07);
+  --shadow-overlay: 0 20px 25px -5px oklch(0.24 0.03 265 / 0.16), 0 8px 10px -6px oklch(0.24 0.03 265 / 0.12);
+
+  /* --- Типографика --------------------------------------------------- */
+  --font-sans: 'Fira Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, 'Cascadia Code', Consolas, monospace;
 }
 
-/* Тёмная тема — по системной настройке или по data-theme на <html>. */
+/*
+ * Тёмная тема. Переопределяем ТОЛЬКО те токены, что меняются: бренд и
+ * семантика остаются, но подсветки (soft) становятся тёмными, иначе
+ * бейджи светятся белыми пятнами на тёмном фоне.
+ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-bg: oklch(0.19 0.015 255);
-    --color-surface: oklch(0.24 0.018 255);
-    --color-border: oklch(0.32 0.02 255);
-    --color-muted: oklch(0.68 0.02 255);
-    --color-fg: oklch(0.96 0.005 255);
+    --color-bg: oklch(0.17 0.015 260);
+    --color-surface: oklch(0.215 0.018 260);
+    --color-surface-2: oklch(0.25 0.02 260);
+    --color-border: oklch(0.3 0.02 260);
+    --color-border-strong: oklch(0.4 0.025 260);
+
+    --color-fg: oklch(0.96 0.005 260);
+    --color-muted: oklch(0.72 0.02 260);
+    --color-subtle: oklch(0.64 0.02 260);
+
+    --color-primary: oklch(0.66 0.19 262);
+    --color-primary-hover: oklch(0.72 0.18 262);
+    --color-primary-fg: oklch(0.15 0.02 262);
+    --color-primary-soft: oklch(0.3 0.07 262);
+
+    --color-success: oklch(0.66 0.14 155);
+    --color-success-soft: oklch(0.3 0.06 155);
+    --color-danger: oklch(0.65 0.19 27);
+    --color-danger-hover: oklch(0.7 0.18 27);
+    --color-danger-soft: oklch(0.32 0.08 27);
+    --color-danger-fg: oklch(0.18 0.05 27);
+    --color-warning-soft: oklch(0.33 0.07 75);
+    --color-info-soft: oklch(0.3 0.07 259);
+
+    --shadow-card: 0 1px 2px 0 oklch(0 0 0 / 0.35);
+    --shadow-raised: 0 1px 3px 0 oklch(0 0 0 / 0.45), 0 1px 2px -1px oklch(0 0 0 / 0.4);
+    --shadow-overlay: 0 20px 25px -5px oklch(0 0 0 / 0.6), 0 8px 10px -6px oklch(0 0 0 / 0.5);
   }
 }
 
 :root[data-theme='dark'] {
-  --color-bg: oklch(0.19 0.015 255);
-  --color-surface: oklch(0.24 0.018 255);
-  --color-border: oklch(0.32 0.02 255);
-  --color-muted: oklch(0.68 0.02 255);
-  --color-fg: oklch(0.96 0.005 255);
+  --color-bg: oklch(0.17 0.015 260);
+  --color-surface: oklch(0.215 0.018 260);
+  --color-surface-2: oklch(0.25 0.02 260);
+  --color-border: oklch(0.3 0.02 260);
+  --color-border-strong: oklch(0.4 0.025 260);
+
+  --color-fg: oklch(0.96 0.005 260);
+  --color-muted: oklch(0.72 0.02 260);
+  --color-subtle: oklch(0.64 0.02 260);
+
+  --color-primary: oklch(0.66 0.19 262);
+  --color-primary-hover: oklch(0.72 0.18 262);
+  --color-primary-fg: oklch(0.15 0.02 262);
+  --color-primary-soft: oklch(0.3 0.07 262);
+
+  --color-success: oklch(0.66 0.14 155);
+  --color-success-soft: oklch(0.3 0.06 155);
+  --color-danger: oklch(0.65 0.19 27);
+  --color-danger-hover: oklch(0.7 0.18 27);
+  --color-danger-soft: oklch(0.32 0.08 27);
+  --color-danger-fg: oklch(0.18 0.05 27);
+  --color-warning-soft: oklch(0.33 0.07 75);
+  --color-info-soft: oklch(0.3 0.07 259);
+
+  --shadow-card: 0 1px 2px 0 oklch(0 0 0 / 0.35);
+  --shadow-raised: 0 1px 3px 0 oklch(0 0 0 / 0.45), 0 1px 2px -1px oklch(0 0 0 / 0.4);
+  --shadow-overlay: 0 20px 25px -5px oklch(0 0 0 / 0.6), 0 8px 10px -6px oklch(0 0 0 / 0.5);
 }
 
 html,
@@ -55,10 +142,44 @@ body {
   color: var(--color-fg);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Таблицы журнала широкие — скроллим их, а не страницу. */
+/* Цифры в таблицах должны стоять в колонку — иначе ИИН и коды «пляшут». */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Широкие таблицы журнала скроллим внутри контейнера, а не всей страницей. */
 .table-scroll {
   overflow-x: auto;
   max-width: 100%;
+  overscroll-behavior-x: contain;
+}
+
+/* Ненавязчивый скроллбар — в плотном интерфейсе системный слишком тяжёлый. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+::selection {
+  background-color: var(--color-primary-soft);
+  color: var(--color-fg);
+}
+
+/*
+ * Уважаем prefers-reduced-motion: пользователям с вестибулярными
+ * расстройствами анимации мешают, а часть из них — противопоказана.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

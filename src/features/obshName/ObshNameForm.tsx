@@ -116,62 +116,68 @@ export default function ObshNameForm({ open, onClose, editRow }: Props) {
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'obsh-name-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      size="lg"
       title={isEdit ? t('obsh_name.change_obsh_name') : t('obsh_name.add_obsh_name')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('obsh_name.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('obsh_name.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="grid grid-cols-3 gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Input
-            label={`${t('obsh_name.name_kz')} *`}
+            label={t('obsh_name.name_kz')}
             value={obshNameKz}
             onChange={(e) => setObshNameKz(e.target.value)}
             required
           />
           <Input
-            label={`${t('obsh_name.name_ru')} *`}
+            label={t('obsh_name.name_ru')}
             value={obshNameRu}
             onChange={(e) => setObshNameRu(e.target.value)}
             required
           />
           <Input
-            label={`${t('obsh_name.name_en')} *`}
+            label={t('obsh_name.name_en')}
             value={obshNameEn}
             onChange={(e) => setObshNameEn(e.target.value)}
             required
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Input
-            label={`${t('obsh_name.short_kz')} *`}
+            label={t('obsh_name.short_kz')}
             value={obshNameShortKz}
             onChange={(e) => setObshNameShortKz(e.target.value)}
             required
           />
           <Input
-            label={`${t('obsh_name.short_ru')} *`}
+            label={t('obsh_name.short_ru')}
             value={obshNameShortRu}
             onChange={(e) => setObshNameShortRu(e.target.value)}
             required
           />
           <Input
-            label={`${t('obsh_name.short_en')} *`}
+            label={t('obsh_name.short_en')}
             value={obshNameShortEn}
             onChange={(e) => setObshNameShortEn(e.target.value)}
             required
           />
-        </div>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('obsh_name.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('obsh_name.save_but')}
-          </Button>
         </div>
       </form>
     </Modal>

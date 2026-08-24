@@ -123,15 +123,30 @@ export default function ModulNameForm({ open, onClose, tipModulList, editRow }: 
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'modul-name-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      size="lg"
       title={isEdit ? t('modul_name.change_modul_name') : t('modul_name.add_modul_name')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('modul_name.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('modul_name.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Select
-          label={`${t('modul_name.tip_modul')} *`}
+          label={t('modul_name.tip_modul')}
           value={tipModulId}
           onChange={(e) => setTipModulId(e.target.value)}
           required
@@ -146,55 +161,46 @@ export default function ModulNameForm({ open, onClose, tipModulList, editRow }: 
           ))}
         </Select>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Input
-            label={`${t('modul_name.name_kz')} *`}
+            label={t('modul_name.name_kz')}
             value={modulNameKz}
             onChange={(e) => setModulNameKz(e.target.value)}
             required
           />
           <Input
-            label={`${t('modul_name.name_ru')} *`}
+            label={t('modul_name.name_ru')}
             value={modulNameRu}
             onChange={(e) => setModulNameRu(e.target.value)}
             required
           />
           <Input
-            label={`${t('modul_name.name_en')} *`}
+            label={t('modul_name.name_en')}
             value={modulNameEn}
             onChange={(e) => setModulNameEn(e.target.value)}
             required
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Input
-            label={`${t('modul_name.short_kz')} *`}
+            label={t('modul_name.short_kz')}
             value={modulNameShortKz}
             onChange={(e) => setModulNameShortKz(e.target.value)}
             required
           />
           <Input
-            label={`${t('modul_name.short_ru')} *`}
+            label={t('modul_name.short_ru')}
             value={modulNameShortRu}
             onChange={(e) => setModulNameShortRu(e.target.value)}
             required
           />
           <Input
-            label={`${t('modul_name.short_en')} *`}
+            label={t('modul_name.short_en')}
             value={modulNameShortEn}
             onChange={(e) => setModulNameShortEn(e.target.value)}
             required
           />
-        </div>
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('modul_name.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('modul_name.save_but')}
-          </Button>
         </div>
       </form>
     </Modal>

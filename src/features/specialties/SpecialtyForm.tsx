@@ -117,15 +117,29 @@ export default function SpecialtyForm({ open, onClose, gruppaOpList, editRow }: 
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'specialty-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
       title={isEdit ? t('specialties.change_spec') : t('specialties.add_spec')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('specialties.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('specialties.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Select
-          label={`${t('specialties.gruppa_op')} *`}
+          label={t('specialties.gruppa_op')}
           value={gruppaOpId}
           onChange={(e) => setGruppaOpId(e.target.value)}
           required
@@ -144,22 +158,25 @@ export default function SpecialtyForm({ open, onClose, gruppaOpList, editRow }: 
           label={t('specialties.spec_kod')}
           value={specKod}
           onChange={(e) => setSpecKod(e.target.value)}
+          className="tabular"
           required
         />
 
-        <Input
-          label={t('specialties.name_kz')}
-          value={specKz}
-          onChange={(e) => setSpecKz(e.target.value)}
-          required
-        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input
+            label={t('specialties.name_kz')}
+            value={specKz}
+            onChange={(e) => setSpecKz(e.target.value)}
+            required
+          />
 
-        <Input
-          label={t('specialties.name_ru')}
-          value={specRu}
-          onChange={(e) => setSpecRu(e.target.value)}
-          required
-        />
+          <Input
+            label={t('specialties.name_ru')}
+            value={specRu}
+            onChange={(e) => setSpecRu(e.target.value)}
+            required
+          />
+        </div>
 
         <Input
           label={t('specialties.name_en')}
@@ -167,15 +184,6 @@ export default function SpecialtyForm({ open, onClose, gruppaOpList, editRow }: 
           onChange={(e) => setSpecEn(e.target.value)}
           required
         />
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('specialties.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('specialties.save_but')}
-          </Button>
-        </div>
       </form>
     </Modal>
   )

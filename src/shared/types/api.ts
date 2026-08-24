@@ -62,6 +62,8 @@ export interface CurrentUser {
   type: UserType
   /** Присутствует только у сотрудников */
   sotrudnik_id?: Id
+  /** Один и тот же логин зарегистрирован и как студент, и как сотрудник — можно переключиться без пароля */
+  hasMultipleRoles: boolean
 }
 
 export type UserType = 'student' | 'sotrudnik'

@@ -5,7 +5,10 @@ import { toastPushed } from '@/features/ui/uiSlice'
 import { useTestUploadPreviewQuery, useTestUploadSaveMutation, type PreviewQuestion } from '@/features/testUpload/testUploadApi'
 import { useT } from '@/shared/i18n/useT'
 import Button from '@/shared/ui/Button'
+import Icon from '@/shared/ui/Icon'
 import Spinner from '@/shared/ui/Spinner'
+import EmptyState from '@/shared/ui/EmptyState'
+import PageHeader from '@/shared/ui/PageHeader'
 
 type TabId = 'correct' | 'incorrect'
 
@@ -62,87 +65,98 @@ export default function TestPreviewPage() {
 
   if (isError || !previewData) {
     return (
-      <div className="flex flex-col items-center gap-4 py-8">
-        <p className="text-muted">Нет данных для предпросмотра</p>
-        <Button onClick={() => navigate('/staff/test-upload')}>{t('common.back')}</Button>
+      <div className="flex flex-col gap-5">
+        <PageHeader title={t('test_upload.preview_title')} />
+        <div className="rounded-card border border-border bg-surface shadow-card">
+          <EmptyState
+            title={t('common.no_data')}
+            description="Нет данных для предпросмотра"
+            action={
+              <Button variant="secondary" icon="chevronLeft" onClick={() => navigate('/staff/test-upload')}>
+                {t('common.back')}
+              </Button>
+            }
+          />
+        </div>
       </div>
     )
   }
 
-  const tabs: { id: TabId; label: string; count: number; color: string }[] = [
-    { id: 'correct', label: t('test_upload.correct'), count: correct.length, color: 'text-green-600' },
-    { id: 'incorrect', label: t('test_upload.incorrect'), count: incorrect.length, color: 'text-red-600' },
+  const tabs: { id: TabId; label: string; count: number }[] = [
+    { id: 'correct', label: t('test_upload.correct'), count: correct.length },
+    { id: 'incorrect', label: t('test_upload.incorrect'), count: incorrect.length },
   ]
 
-  return (
-    <div className="flex flex-col gap-4">
-      {/* Header */}
-      <h1 className="text-xl font-semibold">{t('test_upload.preview_title')}</h1>
+  const visible = activeTab === 'correct' ? correct : incorrect
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-lg border border-border bg-surface p-4">
-          <p className="text-xs text-muted">{t('test_upload.total')}</p>
-          <p className="text-2xl font-bold">{total}</p>
+  return (
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('test_upload.preview_title')}
+        actions={
+          <>
+            <Button variant="secondary" icon="chevronLeft" onClick={() => navigate('/staff/test-upload')}>
+              {t('common.back')}
+            </Button>
+            {correct.length > 0 && (
+              <Button onClick={handleSave} loading={isSaving} icon="check">
+                {t('test_upload.save')} ({correct.length})
+              </Button>
+            )}
+          </>
+        }
+      />
+
+      {/* Плитки KPI: всего / правильных / неправильных */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+          <p className="tabular text-2xl font-semibold">{total}</p>
+          <p className="text-sm text-muted">{t('test_upload.total')}</p>
         </div>
-        <div className="rounded-lg border-l-4 border-green-500 border-l-green-500 bg-surface p-4">
-          <p className="text-xs text-muted">{t('test_upload.correct')}</p>
-          <p className="text-2xl font-bold text-green-600">{correct.length}</p>
+        <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+          <p className="tabular text-2xl font-semibold text-success">{correct.length}</p>
+          <p className="text-sm text-muted">{t('test_upload.correct')}</p>
         </div>
-        <div className="rounded-lg border-l-4 border-red-500 border-l-red-500 bg-surface p-4">
-          <p className="text-xs text-muted">{t('test_upload.incorrect')}</p>
-          <p className="text-2xl font-bold text-red-600">{incorrect.length}</p>
+        <div className="rounded-card border border-border bg-surface p-4 shadow-card">
+          <p className="tabular text-2xl font-semibold text-danger">{incorrect.length}</p>
+          <p className="text-sm text-muted">{t('test_upload.incorrect')}</p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-border">
-        <div className="flex gap-1">
-          {tabs.map((tab) => (
-            <button
+      {/* Переключатель списков — сегментированный контрол на общих кнопках */}
+      <div className="inline-flex w-fit gap-1 rounded-control border border-border bg-surface-2 p-1">
+        {tabs.map((tab) => {
+          const isCurrent = activeTab === tab.id
+          return (
+            <Button
               key={tab.id}
+              size="sm"
+              variant={isCurrent ? 'primary' : 'ghost'}
               onClick={() => setActiveTab(tab.id)}
-              className={`border-b-2 px-4 py-2 text-sm transition-colors ${
-                activeTab === tab.id ? 'border-primary font-medium text-fg' : 'border-transparent text-muted hover:border-muted hover:text-fg'
-              }`}
             >
-              <span className={tab.color}>{tab.id === 'correct' ? '✓' : '✗'}</span> {tab.label} ({tab.count})
-            </button>
-          ))}
-        </div>
+              <Icon
+                name={tab.id === 'correct' ? 'check' : 'close'}
+                className={`size-3.5 ${
+                  isCurrent ? '' : tab.id === 'correct' ? 'text-success' : 'text-danger'
+                }`}
+              />
+              {tab.label}
+              <span className="tabular">({tab.count})</span>
+            </Button>
+          )
+        })}
       </div>
 
       {/* Questions list */}
       <div className="flex flex-col gap-3">
-        {activeTab === 'correct' && (
-          <>
-            {correct.length === 0 ? (
-              <p className="py-8 text-center text-muted">{t('common.no_data')}</p>
-            ) : (
-              correct.map((q, idx) => <QuestionCard key={idx} question={q} index={idx + 1} />)
-            )}
-          </>
-        )}
-        {activeTab === 'incorrect' && (
-          <>
-            {incorrect.length === 0 ? (
-              <p className="py-8 text-center text-muted">{t('common.no_data')}</p>
-            ) : (
-              incorrect.map((q, idx) => <QuestionCard key={idx} question={q} index={idx + 1} showError />)
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center justify-between border-t border-border pt-4">
-        <Button variant="secondary" onClick={() => navigate('/staff/test-upload')}>
-          {t('common.back')}
-        </Button>
-        {correct.length > 0 && (
-          <Button onClick={handleSave} loading={isSaving}>
-            {t('test_upload.save')} ({correct.length})
-          </Button>
+        {visible.length === 0 ? (
+          <div className="rounded-card border border-border bg-surface shadow-card">
+            <EmptyState title={t('common.no_data')} description={t('common.no_records_hint')} />
+          </div>
+        ) : (
+          visible.map((q, idx) => (
+            <QuestionCard key={idx} question={q} index={idx + 1} showError={activeTab === 'incorrect'} />
+          ))
         )}
       </div>
     </div>
@@ -154,14 +168,16 @@ export default function TestPreviewPage() {
  */
 function QuestionCard({ question, index, showError }: { question: PreviewQuestion; index: number; showError?: boolean }) {
   return (
-    <div className="rounded-lg border border-border bg-surface p-4">
+    <div className="rounded-card border border-border bg-surface p-4 shadow-card">
       {/* Number badge */}
-      <div className="mb-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-fg">{index}</div>
+      <div className="mb-2 inline-flex size-7 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-fg tabular">
+        {index}
+      </div>
 
       {/* Error reason */}
       {showError && question.errorReason && (
-        <div className="mb-2 flex items-center gap-1 text-sm text-red-600">
-          <span>⚠</span>
+        <div className="mb-2 flex items-center gap-1.5 rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">
+          <Icon name="alert" className="size-4" />
           {question.errorReason}
         </div>
       )}
@@ -177,10 +193,10 @@ function QuestionCard({ question, index, showError }: { question: PreviewQuestio
         {question.answers.map((answer, idx) => (
           <div
             key={idx}
-            className={`rounded px-3 py-2 text-sm ${
+            className={`rounded-control border-l-4 px-3 py-2 text-sm ${
               answer.isTrue
-                ? 'border-l-4 border-green-500 bg-green-50 font-medium dark:bg-green-900/20'
-                : 'border-l-4 border-border bg-bg'
+                ? 'border-success bg-success-soft font-medium text-fg'
+                : 'border-border bg-surface-2'
             }`}
             dangerouslySetInnerHTML={{ __html: answer.html }}
           />

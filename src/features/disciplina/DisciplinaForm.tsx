@@ -148,13 +148,28 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
     }
   }
 
+  // Кнопки живут в footer модалки, а форма — в теле, поэтому submit
+  // связывается с ней через form="...", а не вложенностью.
+  const formId = 'disciplina-form'
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      size="lg"
       title={isEdit ? t('disciplina.change_disciplina') : t('disciplina.add_disciplina')}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('disciplina.cancel_but')}
+          </Button>
+          <Button type="submit" form={formId} loading={isLoading}>
+            {t('disciplina.save_but')}
+          </Button>
+        </div>
+      }
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Select
           label={t('disciplina.podrazdelenie')}
           value={podrazdelenieId}
@@ -168,42 +183,46 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
           ))}
         </Select>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Input
-            label={`${t('disciplina.name_kz')} *`}
+            label={t('disciplina.name_kz')}
             value={disciplinaKz}
             onChange={(e) => setDisciplinaKz(e.target.value)}
             required
           />
           <Input
-            label={`${t('disciplina.name_ru')} *`}
+            label={t('disciplina.name_ru')}
             value={disciplinaRu}
             onChange={(e) => setDisciplinaRu(e.target.value)}
             required
           />
           <Input
-            label={`${t('disciplina.name_en')} *`}
+            label={t('disciplina.name_en')}
             value={disciplinaEn}
             onChange={(e) => setDisciplinaEn(e.target.value)}
             required
           />
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
-          <Input
-            label={`${t('disciplina.kredit')} *`}
-            type="number"
-            min={0}
-            value={kredit}
-            onChange={(e) => setKredit(e.target.value ? Number(e.target.value) : '')}
-            required
-          />
+        <Input
+          label={t('disciplina.kredit')}
+          type="number"
+          min={0}
+          value={kredit}
+          onChange={(e) => setKredit(e.target.value ? Number(e.target.value) : '')}
+          className="tabular sm:max-w-[10rem]"
+          required
+        />
+
+        {/* Часы по видам занятий — компактная сетка одинаковых числовых полей. */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Input
             label={t('disciplina.lk')}
             type="number"
             min={0}
             value={lk}
             onChange={(e) => setLk(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
           <Input
             label={t('disciplina.pz')}
@@ -211,6 +230,7 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
             min={0}
             value={pz}
             onChange={(e) => setPz(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
           <Input
             label={t('disciplina.lz')}
@@ -218,16 +238,15 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
             min={0}
             value={lz}
             onChange={(e) => setLz(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
-        </div>
-
-        <div className="grid grid-cols-5 gap-4">
           <Input
             label={t('disciplina.srs')}
             type="number"
             min={0}
             value={srs}
             onChange={(e) => setSrs(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
           <Input
             label={t('disciplina.srsp')}
@@ -235,6 +254,7 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
             min={0}
             value={srsp}
             onChange={(e) => setSrsp(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
           <Input
             label={t('disciplina.pp')}
@@ -242,6 +262,7 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
             min={0}
             value={pp}
             onChange={(e) => setPp(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
           <Input
             label={t('disciplina.lpz')}
@@ -249,6 +270,7 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
             min={0}
             value={lpz}
             onChange={(e) => setLpz(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
           <Input
             label={t('disciplina.fz')}
@@ -256,6 +278,7 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
             min={0}
             value={fz}
             onChange={(e) => setFz(e.target.value ? Number(e.target.value) : '')}
+            className="tabular"
           />
         </div>
 
@@ -263,17 +286,8 @@ export default function DisciplinaForm({ open, onClose, podrazdelenieList, editR
           label={t('disciplina.dop_info')}
           value={opisanie}
           onChange={(e) => setOpisanie(e.target.value)}
-          rows={2}
+          rows={3}
         />
-
-        <div className="mt-2 flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('disciplina.cancel_but')}
-          </Button>
-          <Button type="submit" loading={isLoading}>
-            {t('disciplina.save_but')}
-          </Button>
-        </div>
       </form>
     </Modal>
   )

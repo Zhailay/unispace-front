@@ -12,11 +12,13 @@ import ChangePasswordForm from '@/features/students/ChangePasswordForm'
 import ConfirmDialog from '@/shared/ui/ConfirmDialog'
 import type { Id } from '@/shared/types/api'
 import { useT } from '@/shared/i18n/useT'
+import Badge from '@/shared/ui/Badge'
 import Button from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Field'
-import Spinner from '@/shared/ui/Spinner'
+import { SearchInput } from '@/shared/ui/Field'
 import DataTable, { type Column } from '@/shared/ui/DataTable'
 import Pagination from '@/shared/ui/Pagination'
+import PageHeader from '@/shared/ui/PageHeader'
+import RowActions from '@/shared/ui/RowActions'
 
 const PAGE_SIZE = 10
 
@@ -121,16 +123,18 @@ export default function StudentsPage() {
     setDeleteId(null)
   }
 
-  function formatStatus(status: number | null): string {
-    if (status === 1) return t('ucheb_students.active')
-    if (status === 0) return t('ucheb_students.inactive')
-    return ''
+  // Статус приходит числом; null означает «не задан» — тогда бейдж не рисуем.
+  function renderStatus(status: number | null) {
+    if (status === 1) return <Badge tone="success">{t('ucheb_students.active')}</Badge>
+    if (status === 0) return <Badge>{t('ucheb_students.inactive')}</Badge>
+    return null
   }
 
   const columns: Column<StudentRow>[] = [
     {
       key: 'iin',
       header: t('ucheb_students.iin'),
+      className: 'tabular font-medium whitespace-nowrap',
       render: (row) => row.out_student_iin,
     },
     {
@@ -151,81 +155,103 @@ export default function StudentsPage() {
     {
       key: 'email',
       header: t('ucheb_students.email'),
+      className: 'text-muted',
       render: (row) => row.out_student_email ?? '',
     },
     {
       key: 'login',
       header: t('ucheb_students.login'),
+      className: 'text-muted whitespace-nowrap',
       render: (row) => row.out_student_password_login ?? '',
     },
     {
       key: 'status',
       header: t('ucheb_students.status'),
-      render: (row) => formatStatus(row.out_gruppa_student_status),
+      render: (row) => renderStatus(row.out_gruppa_student_status),
     },
     {
       key: 'actions',
       header: t('ucheb_students.actions'),
+      align: 'right',
+      className: 'w-px',
       render: (row) => (
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => handleEdit(row)}>
-            {t('common.edit')}
-          </Button>
-          <Button variant="secondary" onClick={() => handlePasswordClick(row.out_student_id)}>
-            {t('ucheb_students.password')}
-          </Button>
+        <div className="flex justify-end gap-1">
           <Button
-            variant="danger"
-            loading={isDeleting && deleteId === row.out_student_id}
-            onClick={() => handleDeleteClick(row.out_student_id)}
-          >
-            {t('common.delete')}
-          </Button>
+            size="sm"
+            variant="ghost"
+            icon="key"
+            onClick={() => handlePasswordClick(row.out_student_id)}
+            title={t('ucheb_students.password')}
+            aria-label={t('ucheb_students.password')}
+          />
+          <RowActions
+            onEdit={() => handleEdit(row)}
+            onDelete={() => handleDeleteClick(row.out_student_id)}
+            deleting={isDeleting && deleteId === row.out_student_id}
+          />
         </div>
       ),
     },
   ]
 
-  if (isPageLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Spinner />
-      </div>
-    )
-  }
-
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-semibold">{t('ucheb_students.menu_name')}</h1>
-        {isFetching && <Spinner className="size-4" />}
-        <span className="ml-auto text-sm text-muted">{total}</span>
-      </div>
+    <div className="flex flex-col gap-5">
+      <PageHeader
+        title={t('ucheb_students.menu_name')}
+        count={total}
+        busy={isFetching || isPageLoading}
+        actions={
+          <Button icon="plus" onClick={handleCreate} disabled={isPageLoading}>
+            {t('ucheb_students.create')}
+          </Button>
+        }
+      />
 
-      <div className="flex items-end gap-3">
-        <Input
-          label={t('ucheb_students.search')}
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          placeholder={t('common.search')}
-          className="max-w-sm"
-        />
-        <Button onClick={handleSearch}>{t('ucheb_students.search')}</Button>
-        <Button variant="secondary" onClick={handleClearSearch} title={t('ucheb_students.clear_search')}>
-          X
+      {/* Поиск применяется по Enter или кнопке — так было и до редизайна. */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="w-full sm:max-w-xs">
+          <SearchInput
+          clearLabel={t('common.clear_search')}
+            label={t('common.search')}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            onClear={handleClearSearch}
+            placeholder={t('ucheb_students.search')}
+          />
+        </div>
+        <Button icon="search" variant="secondary" onClick={handleSearch}>
+          {t('common.search')}
         </Button>
-        <Button onClick={handleCreate}>{t('ucheb_students.create')}</Button>
       </div>
 
       <DataTable
         columns={columns}
         data={rows}
         rowKey={(row) => row.out_student_id}
-        loading={isFetching}
+        loading={isFetching || isPageLoading}
+        emptyMessage={search ? t('common.nothing_found') : t('common.no_data')}
+        emptyDescription={search ? t('common.nothing_found_hint') : t('common.no_records_hint')}
+        emptyAction={
+          search ? (
+            <Button variant="secondary" onClick={handleClearSearch}>
+              {t('ucheb_students.clear_search')}
+            </Button>
+          ) : (
+            <Button icon="plus" onClick={handleCreate} disabled={isPageLoading}>
+              {t('ucheb_students.create')}
+            </Button>
+          )
+        }
       />
 
-      <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
+      <Pagination
+        page={page}
+        lastPage={lastPage}
+        onPageChange={setPage}
+        total={total}
+        pageSize={PAGE_SIZE}
+      />
 
       <StudentForm
         open={formOpen}
@@ -249,6 +275,7 @@ export default function StudentsPage() {
         message={t('ucheb_students.confirm_delete')}
         confirmText={t('ucheb_students.yes')}
         cancelText={t('ucheb_students.no')}
+        loading={isDeleting}
         onConfirm={handleDeleteConfirm}
         onClose={handleDeleteCancel}
       />
