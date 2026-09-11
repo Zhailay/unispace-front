@@ -51,6 +51,20 @@ export interface LegacyResponse<T = unknown> {
  */
 export type Id = string
 
+/**
+ * ТА ЖЕ ЛОВУШКА, но для дробных: `numeric` / `decimal` / результат `AVG()`
+ * драйвер `pg` тоже отдаёт СТРОКОЙ ("4.50") — по той же причине, точность.
+ *
+ * Опасно тем, что в типах обычно написано `number`, TypeScript спокоен, а в
+ * рантайме падает `x.toFixed is not a function` (так было в журнале с
+ * `avg_ball`). Перед любой арифметикой или форматированием приводить через
+ * `Number(...)`, а тип объявлять честно: `number | string | null`.
+ *
+ * Проверять на пустоту через `== null`, а не на истинность: `0` — валидная
+ * оценка, и `if (!value)` молча превратит её в пустую ячейку.
+ */
+export type Numeric = number | string
+
 /** Пользователь: студент или сотрудник. Роли на бэке не реализованы. */
 export interface CurrentUser {
   id: Id

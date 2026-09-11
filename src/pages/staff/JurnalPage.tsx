@@ -42,6 +42,21 @@ const TAB_IDLE = 'text-muted hover:bg-surface-2 hover:text-fg'
 const TH = 'border-b border-border px-3 py-2 text-xs font-semibold tracking-wide uppercase whitespace-nowrap'
 
 /**
+ * Средний балл для ячейки рейтинга.
+ *
+ * Значение приходит из AVG() PostgreSQL, то есть numeric, а драйвер pg
+ * отдаёт numeric СТРОКОЙ ("4.50") — как и bigint. Прямой вызов
+ * avg.toFixed(1) на такой строке падает с «toFixed is not a function»,
+ * причём TypeScript этого не ловит: в типах было объявлено number.
+ * Поэтому приводим явно и молча отдаём пустую ячейку на мусорных данных.
+ */
+function formatAvg(value: number | string | null | undefined): string {
+  if (value === null || value === undefined || value === '') return ''
+  const num = Number(value)
+  return Number.isFinite(num) ? num.toFixed(1) : ''
+}
+
+/**
  * Vid zanyatiya columns configuration.
  * Заголовки — ключи переводов, а не латиница: t() доступен только внутри
  * компонента, поэтому на модульном уровне храним ключ, а не готовую строку.
@@ -328,7 +343,7 @@ export default function JurnalPage() {
   const buildRatingData = (data: typeof r1Students, isR2 = false) => {
     if (!data?.length) return { students: {}, studentOrder: [] as Id[], weekCount: 0, weekStart: 1 }
 
-    const students: Record<Id, { fio: string; weeks: Record<number, number | null> }> = {}
+    const students: Record<Id, { fio: string; weeks: Record<number, number | string | null> }> = {}
     const studentOrder: Id[] = []
 
     data.forEach((row) => {
@@ -939,7 +954,7 @@ function GradeTable({ students, activeCols, isVneplan, gradeEdits, onEdit }: Gra
 
 // Rating Table component for R1/R2
 interface RatingTableProps {
-  students: Record<Id, { fio: string; weeks: Record<number, number | null> }>
+  students: Record<Id, { fio: string; weeks: Record<number, number | string | null> }>
   studentOrder: Id[]
   weekCount: number
   weekStart: number
@@ -979,7 +994,7 @@ function RatingTable({ students, studentOrder, weekCount, weekStart, planId, onC
                 <td className="border-r border-border px-3 py-1.5 whitespace-nowrap">{st.fio}</td>
                 {weeks.map((w) => {
                   const avg = st.weeks[w]
-                  const val = avg != null ? avg.toFixed(1) : ''
+                  const val = formatAvg(avg)
                   return (
                     <td
                       key={w}

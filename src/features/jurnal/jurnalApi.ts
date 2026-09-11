@@ -97,7 +97,13 @@ export interface JurnalRatingRow {
   student_id: Id
   fio: string
   week_num: number
-  avg_ball: number | null
+  /**
+   * Средний балл. Тип НЕ number: это AVG() из PostgreSQL, то есть numeric,
+   * а драйвер pg отдаёт numeric строкой ("4.50") — ровно как bigint
+   * (см. комментарий к Id в shared/types/api.ts). Перед арифметикой
+   * обязательно приводить через Number(), иначе .toFixed() падает.
+   */
+  avg_ball: number | string | null
   r1_weeks: number
   r2_start?: number
   r2_weeks?: number
