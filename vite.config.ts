@@ -14,7 +14,7 @@ export default defineConfig({
       // Проксируем на бэк, чтобы браузер видел один origin.
       // Так cookie сессии ходит без CORS-плясок и SameSite-сюрпризов.
       '/api': {
-        target: process.env.VITE_API_TARGET || 'http://localhost:4005',
+        target: process.env.VITE_API_TARGET || 'http://localhost:4015',
         changeOrigin: true,
       },
     },

@@ -11,7 +11,7 @@ npm install
 npm run dev     # http://localhost:5173
 ```
 
-Бэкенд должен быть поднят на `http://localhost:4005`. Vite проксирует `/api` на него, поэтому браузер видит один origin — cookie сессии ходит без CORS и без сюрпризов с SameSite. Другой адрес API задаётся переменной `VITE_API_TARGET`.
+Бэкенд должен быть поднят на `http://localhost:4015`. Vite проксирует `/api` на него, поэтому браузер видит один origin — cookie сессии ходит без CORS и без сюрпризов с SameSite. Другой адрес API задаётся переменной `VITE_API_TARGET`.
 
 ## Скрипты
 
